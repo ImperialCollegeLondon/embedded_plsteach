@@ -25,6 +25,8 @@
         url_for('static', filename='scripts/shards-dashboards.1.1.0.min.js') }}"></script>
         <script type=text/javascript src="{{
         url_for('static', filename='scripts/app/app-blog-overview.1.1.0.js') }}"></script>
+
+
     </head>
     
     
@@ -49,13 +51,13 @@
                 <ul class="nav flex-column">
                     {% if g.user %}
                         <li class="nav-item">
-                            <a class="nav-link " href="">
+                            <a class="nav-link " href="{{ url_for('main.home') }}">
                                 <i class="material-icons">home</i>
                                 <span>Home</span>
                             </a>
                         </li>
                         <li class="nav-item">
-                            <a class="nav-link " href="">
+                            <a class="nav-link " href="{{ url_for('main.plot') }}">
                                 <i class="material-icons">play_circle_filled</i>
                                 <span>New Session</span>
                             </a>
@@ -154,7 +156,7 @@
                 <span class="copyright ml-auto my-auto mr-2">Copyright © 2019 &emsp;
                     <a href="https://siuchan16.wixsite.com/cw1iot" rel="nofollow">
                         <img id="main-logo" style="max-height: 20px;" src="{{
-                        url_for('static', filename='images/footer_logo.png') }}" alt="plz teach" target="_blank"></a>
+                        url_for('static', filename='images/grey.png') }}" alt="plz teach" target="_blank"></a>
                 </span>
             </footer>
         </main>
