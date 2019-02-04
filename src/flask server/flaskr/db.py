@@ -1,7 +1,8 @@
 # -*- coding: utf-8 -*-
 """
 Created on Fri Feb  1 10:36:33 2019
-
+Setup database connection, teardown
+**Need to take care of schema.sql**
 @author: Sam Wan
 """
 
@@ -15,7 +16,7 @@ from flask.cli import with_appcontext
 
 def get_db():
     if 'db' not in g:
-        g.db = sqlite3.connect(
+        g.db = sqlite3.connect( #g holds application_level context
                 current_app.config['DATABASE'],
                 detect_types=sqlite3.PARSE_DECLTYPES
                 )
@@ -45,5 +46,5 @@ def init_db_command():
 #with application instance, for factory function:
 
 def init_app(app):
-    app.teardown_appcontext(close_db) #clean up after response
-    app.cli.add_command(init_db_command) #add command callable by flask command
+    app.teardown_appcontext(close_db) #clean up after response (called when request or app context popped)
+    app.cli.add_command(init_db_command) #add command callable by flask cli command

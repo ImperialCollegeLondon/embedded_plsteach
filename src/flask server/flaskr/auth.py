@@ -46,7 +46,7 @@ def register():
         
         flash(error)
         
-    return render_template('auth/register.html')
+    return render_template('auth/register.html') #return html
 
 @bp.route('/login', methods=('GET', 'POST'))
 def login():
@@ -73,8 +73,8 @@ def login():
 
     return render_template('auth/login.html')
 
-@bp.before_app_request
-def load_logged_in_user():
+@bp.before_app_request # function that runs before any view
+def load_logged_in_user(): #checks if a user id is in a session, then fetch data
     user_id = session.get('user_id')
 
     if user_id is None:
