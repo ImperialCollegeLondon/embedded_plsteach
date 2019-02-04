@@ -8,10 +8,12 @@ Define all user activities
 import functools
 
 from flask import (
-        Blueprint, flash, g, redirect, render_template, request, session, url_for
+        Blueprint, flash, g, redirect, render_template, request, session, url_for,
         )
 
 from flaskr.db import get_db
+from flask_socketio import send, emit
+from . import socketio
 
 bp = Blueprint('main', __name__, url_prefix='/main')
 
@@ -24,4 +26,9 @@ def home():
 def plot():
     
     return render_template('main/plot.html')
+
+@socketio.on('connect_event')
+def send_data():
+    print('CONNECTED AND EMITTED 10')
+    emit('server_response', {'data': 10})
     
