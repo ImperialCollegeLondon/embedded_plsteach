@@ -8,6 +8,7 @@ import os
 
 from flask import Flask, render_template, g, redirect, url_for
 from flask_mqtt import Mqtt
+from flask_socketio import SocketIO, emit, send
 
 
 def create_app(test_config=None):
@@ -51,5 +52,6 @@ def create_app(test_config=None):
     app.register_blueprint(main.bp)
     
     #mqtt = Mqtt(app)
+    socketio = SocketIO(app)
     
     return app
