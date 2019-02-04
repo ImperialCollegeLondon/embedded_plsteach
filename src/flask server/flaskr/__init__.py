@@ -6,7 +6,7 @@ Created on Fri Feb  1 10:04:54 2019
 """
 import os
 
-from flask import Flask
+from flask import Flask, render_template, g
 from flask_mqtt import Mqtt
 
 
@@ -32,13 +32,15 @@ def create_app(test_config=None):
         pass
 
     # a simple page that says hello
-    @app.route('/hello')
-    def hello():
-        return 'Hello, World!'
+    @app.route('/')
+    def index():
+        if g.user is not None:
+            return url_for('')
+        return render_template('index.html')
     
     from . import db
-    from . import auth
     db.init_app(app)
+    from . import auth
     app.register_blueprint(auth.bp)
     
     #mqtt = Mqtt(app)
