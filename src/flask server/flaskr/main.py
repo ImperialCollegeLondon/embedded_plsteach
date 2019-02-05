@@ -5,7 +5,8 @@ Define all user activities
 @author: Sam Wan
 """
 
-import time
+import time, threading
+from queue import Queue
 import numpy as np
 from flask import (
         Blueprint, flash, g, redirect, render_template, request, session, url_for,
@@ -16,20 +17,46 @@ from flask_socketio import emit
 from . import socketio
 
 bp = Blueprint('main', __name__, url_prefix='/main')
+e = threading.Event() #!!!!!!!!!!!!!! global for test only
 
-class Communicator(object):
-    send_toggle = False
+class Consumer(threading.Thread):
     
-    def __init__(self, socketio):
+    def __init__(self, queue, event, socketio):
+        threading.Thread.__init__(self)
+        self.data = queue
+        self.event = event
         self.socketio = socketio
-        self.send_toggle = send_toggle
     
-    def send(self):
-        while self.send_toggle:
+    def run(self):
+        while 1:
+            self.event.wait()
+            try:
+                time, y = self.data.get(True, 5)
+                socketio.emit('In_Data', {'x': time, 'y': y})
+            except Queue.Empty:
+                print("Queue is empty")
+                disconnectHandle(Queue.Empty)
+            time.sleep(1)
             
-    
-    def stop(self):
-        self.send_toggle = False
+class Producer(threading.Thread):
+
+    def __init__(self, queue, event):
+        threading.Thread.__init__(self)
+        self.data = queue
+        self.event = event
+        
+    def run(self):
+        while 1:
+            self.event.wait()
+            try: 
+                tmp = gen_data()
+                self.data.put(tmp,True, 5)
+                print("PUT", tmp)
+            except Queue.Full:
+                print("Queue is full")
+                disconnectHandle(Queue.Full)
+            time.sleep(1)
+       
 
 @bp.route('/home')
 def home():
@@ -38,27 +65,29 @@ def home():
 @bp.route('/plot')
 def plot():
     return render_template('main/plot.html')
-
+        
 @socketio.on('connect_event')
-def connect():
+def OnConnect():
     print('CONNECTED')
-    global pong
-    pong = Communicator(socketio)
-    pong.emit('server_ready')
+    sender = Consumer(e)
+    grabber = Producer(e)
+    grabber.start()
+    sender.start()
     print('SERVER READY')
+    socketio.emit('Server_Ready')
 
 @socketio.on('start_transmit')
-def send_data():
-    y = grab_data()
-    socketio.emit('server_response', {'x': i, 'y': y})
+def start_transmit():
+    e.set()
 
 @socketio.on('stop_transmit')
-def stop_data():
+def stop_transmit():
+    e.clear()
+    
+def disconnectHandle(reason):
     pass
-
-i = 0
-def grab_data():
+i=0 #!!!!!!!!!!
+def gen_data():
     nonlocal i
-    i = i+1
-    print(i)
+    i+=1
     return i, np.random.randint(10)
