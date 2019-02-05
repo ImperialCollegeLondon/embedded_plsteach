@@ -17,22 +17,14 @@
                                     var currentTime = parseInt(new Date().getTime() / 1000);
                                     return function() { return currentTime++; }
                                     })();
-                                    
-                   $(document).ready(function() {                 
-                    var socket = io.connect('http://localhost:5000');
-                    
-                    socket.on('connect', function() {
-                        socket.emit('connect_event')});
-                        
-                    });
-                    
+                                           
                     </script>
                 </head>
     <body>
         <h1>Real-time Line Plot Test</h1>
         <!-- Test 6 -->
         <div id="test-6" class="test">
-            <h2>6. Real Plot From =10</h2>
+            <h2>Real Time Plotting</h2>
             <p>
 
             <div class="epoch"></div>
@@ -41,8 +33,14 @@
         
         <script>
             $(function() {
+            
+                             
+            var socket = io.connect('http://localhost:5000'); 
+            socket.on('connect', function() {
+                socket.emit('connect_event')});
+            
               var data = [
-                          {label: 'A', values: []},
+                          {label: 'A', values: [{time: 0, y:0 }]},
                           ],
               length = 40,
               nextIndex = length,
@@ -50,6 +48,13 @@
               playing = false,
               interval = null;
               
+
+              var tmp_data;
+              var tmp_time;
+              socket.on('server_response', function(msg){
+                  tmp_data = msg.data;
+                  tmp_time = msg.time;
+              });
               var chart = $('#test-6 .epoch').epoch({
                                                     type: 'time.line',
                                                     data: data,
@@ -59,7 +64,7 @@
               var pushPoint = function() {
               time = nextTime();
               chart.push([
-                          { time: time, y: 10},
+                          { time: tmp_time, y: tmp_data},
                           ]);
               nextIndex++;
               };

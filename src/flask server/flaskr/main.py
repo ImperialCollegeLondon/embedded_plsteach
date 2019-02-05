@@ -5,8 +5,8 @@ Define all user activities
 @author: Sam Wan
 """
 
-import functools
-
+import functools, time
+import numpy as np
 from flask import (
         Blueprint, flash, g, redirect, render_template, request, session, url_for,
         )
@@ -29,6 +29,10 @@ def plot():
 
 @socketio.on('connect_event')
 def send_data():
-    print('CONNECTED AND EMITTED 10')
-    emit('server_response', {'data': 10})
+    print('CONNECTED')
+    for i in range(20):
+        num = np.random.randint(10)
+        emit('server_response', {'time': i, 'data': num})
+        print('SENT: ', num )
+        time.sleep(0.5)
     
