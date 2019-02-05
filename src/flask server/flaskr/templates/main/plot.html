@@ -61,7 +61,7 @@
               interval = null;
               
               
-              socket.on('server_response', function(msg){
+              socket.on('In_Data', function(msg){
                         data[0].values.push({x:msg.x, y:msg.y})
                         });
               
@@ -79,9 +79,11 @@
                                      if (playing) {
                                      $(e.target).text('Play');
                                      clearInterval(interval);
+                                     socket.emit('stop_transmit')
                                      }
                                      else {
                                      $(e.target).text('Pause');
+                                     socket.emit('start_transmit')
                                      interval = setInterval(pushPoint, 100);
                                      pushPoint();
                                      }

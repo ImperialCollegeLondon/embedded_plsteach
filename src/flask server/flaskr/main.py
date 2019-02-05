@@ -31,12 +31,13 @@ class Consumer(threading.Thread):
         while 1:
             self.event.wait()
             try:
-                time, y = self.data.get(True, 5)
-                socketio.emit('In_Data', {'x': time, 'y': y})
-            except Queue.Empty:
+                x, y = self.data.get(True, 5)
+                socketio.emit('In_Data', {'x': x, 'y': y})
+                print('GET', (x, y))
+            except Queue.empty:
                 print("Queue is empty")
-                disconnectHandle(Queue.Empty)
-            time.sleep(1)
+                disconnectHandle(Queue.empty)
+            time.sleep(0.2)
             
 class Producer(threading.Thread):
 
@@ -52,11 +53,10 @@ class Producer(threading.Thread):
                 tmp = gen_data()
                 self.data.put(tmp,True, 5)
                 print("PUT", tmp)
-            except Queue.Full:
+            except Queue.full:
                 print("Queue is full")
-                disconnectHandle(Queue.Full)
-            time.sleep(1)
-       
+                disconnectHandle(Queue.full)
+            time.sleep(0.2)
 
 @bp.route('/home')
 def home():
@@ -65,12 +65,17 @@ def home():
 @bp.route('/plot')
 def plot():
     return render_template('main/plot.html')
+
+@bp.route('/status')
+def status():
+    return render_template('main/status.html')
         
 @socketio.on('connect_event')
 def OnConnect():
     print('CONNECTED')
-    sender = Consumer(e)
-    grabber = Producer(e)
+    queue = Queue(10)
+    sender = Consumer(queue, e, socketio)
+    grabber = Producer(queue, e)
     grabber.start()
     sender.start()
     print('SERVER READY')
@@ -78,16 +83,18 @@ def OnConnect():
 
 @socketio.on('start_transmit')
 def start_transmit():
+    print('Event set')
     e.set()
 
 @socketio.on('stop_transmit')
 def stop_transmit():
+    print('Event clear')
     e.clear()
     
 def disconnectHandle(reason):
     pass
-i=0 #!!!!!!!!!!
+i = 0 #!!!!!!!!!!
 def gen_data():
-    nonlocal i
-    i+=1
-    return i, np.random.randint(10)
+    global i 
+    i = i+1
+    return i,np.random.randint(10)
