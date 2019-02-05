@@ -43,10 +43,11 @@
                   ];
                 playing = false;
                 interval = null;
-        
-                
+         
                 socket.on('server_response', function(msg){
                     data[0].values.push({x:msg.x, y:msg.y})
+                    chart.update(data);
+                    socket.emit('ack');
                   });
                   
                 var chart = $('#test-6 .epoch').epoch({
@@ -68,6 +69,7 @@
                         $(e.target).text('Pause');
                         interval = setInterval(pushPoint, 100);
                         pushPoint();
+                        socket.emit('start_transmit');
                     }
                     playing = !playing;
                 });
