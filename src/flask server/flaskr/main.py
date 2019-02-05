@@ -30,9 +30,8 @@ def plot():
 @socketio.on('connect_event')
 def send_data():
     print('CONNECTED')
-    for i in range(20):
+    for i in range(100):
         num = np.random.randint(10)
-        emit('server_response', {'time': i, 'data': num})
+        emit('server_response', {'x': i, 'y': num})
         print('SENT: ', num )
-        time.sleep(0.5)
-    
+        time.sleep(0.05)

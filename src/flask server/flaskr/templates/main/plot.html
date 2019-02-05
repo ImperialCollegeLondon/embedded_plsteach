@@ -6,81 +6,71 @@
 <html>
     <head>
         <link rel="stylesheet" type="text/css" href="{{ url_for('static',filename='styles/test.css') }}">
-            <script src="http://code.jquery.com/jquery-1.10.1.min.js"></script>
-            <script type="text/javascript" src="//cdn.bootcss.com/socket.io/1.5.1/socket.io.min.js"></script>
-            <script src="http://d3js.org/d3.v3.js" charset="utf-8"></script>
-            <script src="{{ url_for('static',filename='scripts/epoch.js') }}"></script>
-            <link rel="stylesheet" type="text/css" href="{{ url_for('static',filename='styles/epoch.css') }}">
+        <link rel="stylesheet" type="text/css" href="{{ url_for('static',filename='styles/epoch.css') }}">
+        <script src="http://code.jquery.com/jquery-1.10.1.min.js"></script>
+        <script type="text/javascript" src="//cdn.bootcss.com/socket.io/1.5.1/socket.io.min.js"></script>
+        <script src="http://d3js.org/d3.v3.js" charset="utf-8"></script>
+        <script src="{{ url_for('static',filename='scripts/epoch.js') }}"></script>
+        
                 
-                <script>
-                    var nextTime = (function() {
-                                    var currentTime = parseInt(new Date().getTime() / 1000);
-                                    return function() { return currentTime++; }
-                                    })();
-                                           
-                    </script>
-                </head>
+        <script>
+            var nextTime = (function() {
+                            var currentTime = parseInt(new Date().getTime() / 1000);
+                            return function() { return currentTime++; }
+                            });
+                                   
+        </script>
+    </head>
     <body>
         <h1>Real-time Line Plot Test</h1>
-        <!-- Test 6 -->
+        
         <div id="test-6" class="test">
             <h2>Real Time Plotting</h2>
             <p>
-
-            <div class="epoch"></div>
-            <p><button>Play</button></p>
+                <div class="epoch"></div>
+                <button>Play</button>
+            </p>
         </div>
         
         <script>
             $(function() {
-            
-                             
-            var socket = io.connect('http://localhost:5000'); 
-            socket.on('connect', function() {
+                var socket = io.connect('http://localhost:5000'); 
+                socket.on('connect', function() {
                 socket.emit('connect_event')});
-            
-              var data = [
-                          {label: 'A', values: [{time: 0, y:0 }]},
-                          ],
-              length = 40,
-              nextIndex = length,
-              scale = 0.1,
-              playing = false,
-              interval = null;
-              
-
-              var tmp_data;
-              var tmp_time;
-              socket.on('server_response', function(msg){
-                  tmp_data = msg.data;
-                  tmp_time = msg.time;
-              });
-              var chart = $('#test-6 .epoch').epoch({
-                                                    type: 'time.line',
-                                                    data: data,
-                                                    axes: ['right', 'bottom']
-                                                    });
-                                                    
-              var pushPoint = function() {
-              time = nextTime();
-              chart.push([
-                          { time: tmp_time, y: tmp_data},
-                          ]);
-              nextIndex++;
-              };
-              
-              $('#test-6 button').on('click', function(e) {
-                                     if (playing) {
-                                     $(e.target).text('Play');
-                                     clearInterval(interval);
-                                     }
-                                     else {
-                                     $(e.target).text('Pause');
-                                     interval = setInterval(pushPoint, 1000);
-                                     pushPoint();
-                                     }
-                                     playing = !playing;
-                                     });
+                
+                var data = [
+                    {label: 'A', values: [{x: 0, y:1 }]},
+                  ];
+                playing = false;
+                interval = null;
+        
+                
+                socket.on('server_response', function(msg){
+                    data[0].values.push({x:msg.x, y:msg.y})
+                  });
+                  
+                var chart = $('#test-6 .epoch').epoch({
+                    type: 'area',
+                    data: data,
+                    axes: ['left', 'bottom']
+                });
+                
+                var pushPoint = function() {
+                    chart.update(data);
+                };
+                  
+                $('#test-6 button').on('click', function(e) {
+                    if (playing) {
+                        $(e.target).text('Play');
+                        clearInterval(interval);
+                    }
+                    else {
+                        $(e.target).text('Pause');
+                        interval = setInterval(pushPoint, 100);
+                        pushPoint();
+                    }
+                    playing = !playing;
+                });
               });
             </script>
   
