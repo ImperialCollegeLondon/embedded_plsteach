@@ -96,5 +96,5 @@ def disconnectHandle(reason):
 i = 0 #!!!!!!!!!!
 def gen_data():
     global i 
-    i = i+1
+    i = i+0.1
     return i,np.random.randint(10)

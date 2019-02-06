@@ -30,7 +30,7 @@
     </div>
     <div class="col-12">
 <div class="row">
-    <div style="width: 850px">
+    <div style="width: 1050px">
         <div class="card card-small">
             <div class="card-header" >
                 <p></p>
@@ -38,7 +38,7 @@
             <div class="card-body pt-0">
                 <div id="test-6" class="test">
 
-                <div class="epoch" style="width: 800px; height: 265px"></div>
+                <div class="epoch" style="width: 1000px; height: 265px"></div>
                 <button class="btn btn-sm btn-outline-accent">Play</button>
               
                 </div>
@@ -55,7 +55,7 @@
                         socket.emit('connect_event')});
               
               var data = [
-                          {label: 'A', values: [{x: 0, y:1 }]},
+                          {label: 'A', values: [{x: 0, y:0 }]},
                           ];
               playing = false;
               interval = null;
@@ -68,7 +68,9 @@
               var chart = $('#test-6 .epoch').epoch({
                                                     type: 'area',
                                                     data: data,
-                                                    axes: ['left', 'bottom']
+                                                    axes: ['left', 'bottom'],
+                                                    range:[0, 20],
+                                                    domain: [0, 50]
                                                     });
               
               var pushPoint = function() {
@@ -84,7 +86,7 @@
                                      else {
                                      $(e.target).text('Pause');
                                      socket.emit('start_transmit')
-                                     interval = setInterval(pushPoint, 100);
+                                     interval = setInterval(pushPoint, 10);
                                      pushPoint();
                                      }
                                      playing = !playing;
