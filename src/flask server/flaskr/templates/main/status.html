@@ -18,9 +18,10 @@
         <div class="card card-small mb-4">
             <div class="card-header">
                 <h6 class="m-0">Status</h6>
+                
             </div>
             <div class="card-body p-0 pb-3 text-center">
-                <table class="table mb-0">
+                <table class="table mb-0" id="table1">
                     
                     <tbody>
                         <tr>
@@ -49,6 +50,7 @@
         </div>
     </div>
     
+    <button id="addbtn">Add</button>
     
     <div class="col-lg-4 mb-4">
         
@@ -82,6 +84,12 @@
                     </div>
         </ul>
     </div>
-
+<script>
+$("#addbtn").click(function(){
+    var table = document.getElementById("table1");
+    $("#table1").append("<table class='table mb-0' id='table1'><tbody><tr><td>a1</td><td>b1</td></tr><tr><td>a2</td><td>b2</td></tr><tr><td>a3</td><td>b3</td></tr><tr><td>a4</td><td>b4</td></tr></tbody></table>");
+    
+});
+</script>
 
 {% endblock %}
