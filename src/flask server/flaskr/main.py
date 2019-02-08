@@ -19,6 +19,7 @@ from . import socketio
 
 queue_length = 10 #define queue size
 bp = Blueprint('main', __name__, url_prefix='/main')
+connector = None 
 
 class Connections():
         
@@ -107,8 +108,8 @@ def plot():
 @login_required
 def status():
     return render_template('main/status.html')
-connector = None        
-#@socketio.on('connect')
+       
+@socketio.on('connect')
 def OnConnect():
     print('WS Client is CONNECTED')
     global connector
@@ -132,7 +133,7 @@ def onDisconnect():
     connector.onDisconnect()
     print('Threads STOPPED')
     
-@socketio.on('connect')
+@socketio.on('save')
 def save_record():
     db = get_db()
     error = None
