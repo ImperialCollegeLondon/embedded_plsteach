@@ -1,10 +1,7 @@
 # -*- coding: utf-8 -*-
 """
 Created on Fri Feb  1 11:29:21 2019
-Views: handle and respond incoming  requests
-Blueprints: group related views
-Blueprints registered to application when available
-This file contains the authentication views (blueprint)
+Define all authentication related functions under auth.bp
 @author: Sam Wan
 """
 

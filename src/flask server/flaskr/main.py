@@ -1,11 +1,11 @@
 # -*- coding: utf-8 -*-
 """
 Created on Sun Feb  3 14:38:34 2019
-Define all user activities
+Define all user activities and functions under main.bp
 @author: Sam Wan
 """
 
-import time, threading
+import time, threading, json
 from queue import Queue
 import numpy as np
 from flask import (
@@ -17,38 +17,72 @@ from flaskr.db import get_db
 from flask_socketio import emit
 from . import socketio
 
+queue_length = 10 #define queue size
 bp = Blueprint('main', __name__, url_prefix='/main')
-e = threading.Event() #!!!!!!!!!!!!!! global for test only
 
+class Connections():
+        
+    def __init__(self, queue_length):
+        self.queue = Queue(queue_length)
+        self.evt = threading.Event()
+        self.sender = Consumer(self.queue, self.evt, True)
+        self.grabber = Producer(self.queue, self.evt, True)
+       
+    def start_threads(self):
+        self.grabber.start()
+        self.sender.start()
+    
+    def start_transmit(self):
+        self.evt.set()
+        print('Event is SET')
+        
+    def stop_transmit(self):
+        self.evt.clear()
+        print('Event is CLEARED')
+        
+    def onDisconnect(self):
+        self.grabber.runThreads = False #kill threads
+        self.sender.runThreads = False #kill threads
+    
+    def generateJS(self):
+        return self.sender.gen_JS()
+                
 class Consumer(threading.Thread):
     
-    def __init__(self, queue, event, socketio):
+    def __init__(self, queue, event, runThreads):
         threading.Thread.__init__(self)
         self.data = queue
         self.event = event
-        self.socketio = socketio
+        self.runThreads = runThreads
+        self.list = []
     
     def run(self):
-        while 1:
+        while self.runThreads:
             self.event.wait()
             try:
                 x, y = self.data.get(True, 5)
+                self.list.append((x,y))
                 socketio.emit('In_Data', {'x': x, 'y': y})
                 print('GET', (x, y))
             except Queue.empty:
                 print("Queue is empty")
-                disconnectHandle(Queue.empty)
+                socketio.emit('Sensor_Dc')
+                self.runThreads = False
             time.sleep(0.2)
+    
+    def gen_JS(self):
+        return json.dumps(dict(list))
             
 class Producer(threading.Thread):
 
-    def __init__(self, queue, event):
+    def __init__(self, queue, event, runThreads):
         threading.Thread.__init__(self)
         self.data = queue
         self.event = event
+        self.runThreads = runThreads
         
     def run(self):
-        while 1:
+        while self.runThreads:
             self.event.wait()
             try: 
                 tmp = gen_data()
@@ -56,47 +90,70 @@ class Producer(threading.Thread):
                 print("PUT", tmp)
             except Queue.full:
                 print("Queue is full")
-                disconnectHandle(Queue.full)
+                self.runThreads = False
             time.sleep(0.2)
 
 @bp.route('/home')
-@login_required()
+@login_required
 def home():
     return render_template('main/home.html')
 
 @bp.route('/plot')
-@login_required()
+@login_required
 def plot():
     return render_template('main/plot.html')
 
 @bp.route('/status')
-@login_required()
+@login_required
 def status():
     return render_template('main/status.html')
-        
-@socketio.on('connect_event')
+connector = None        
+#@socketio.on('connect')
 def OnConnect():
-    print('Web Socket is Connected')
-    queue = Queue(10)
-    sender = Consumer(queue, e, socketio)
-    grabber = Producer(queue, e)
-    grabber.start()
-    sender.start()
+    print('WS Client is CONNECTED')
+    global connector
+    connector = Connections(queue_length)
+    connector.start_threads()
     print('SERVER is READY')
     socketio.emit('Server_Ready')
 
 @socketio.on('start_transmit')
 def start_transmit():
-    print('Event set')
-    e.set()
+    connector.start_transmit()
+
 
 @socketio.on('stop_transmit')
 def stop_transmit():
-    print('Event clear')
-    e.clear()
+    connector.stop_transmit()
+
+@socketio.on('disconnect')
+def onDisconnect():
+    print('WS Client is DISCONNECTED')
+    connector.onDisconnect()
+    print('Threads STOPPED')
     
-def disconnectHandle(reason):
-    pass
+@socketio.on('connect')
+def save_record():
+    db = get_db()
+    error = None
+    #ask for title
+    title = "testing"
+    if not title:
+        error = "Please name your record."
+
+    elif  db.execute(
+                'SELECT title FROM sess_records WHERE title =?', (title,)).fetchone() is not None:
+            error = 'Title {} is already there.'.format(title) #no replace
+    
+    flash(error)
+    
+    if error is None:
+        js = connector.generateJS()
+        db.execute(
+                    'INSERT INTO sess_records (user_id, title, series) VALUES (?,?,?)',
+                    (session.get('user_id'), title, js))
+        db.commit()
+        print("Successfully saved.")
 i = 0 #!!!!!!!!!!
 def gen_data():
     global i 

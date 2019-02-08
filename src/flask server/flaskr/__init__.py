@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 """
 Created on Fri Feb  1 10:04:54 2019
-
+Initilization and flask server configuration
 @author: Sam Wan
 """
 import os
@@ -52,6 +52,5 @@ def create_app(test_config=None):
     from. import main
     app.register_blueprint(main.bp)
     
-    #mqtt = Mqtt(app)
     socketio.init_app(app)
     return app
