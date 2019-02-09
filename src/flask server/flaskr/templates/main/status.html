@@ -2,94 +2,69 @@
 
 {% block header %}
 {% block title %}Settings{% endblock %}
+
 {% endblock %}
 
 {% block content %}
-
-<div class="page-header row no-gutters py-4">
-    <div class="col-12 col-sm-4 text-center text-sm-left mb-0">
-        <h3 class="page-title">Settings</h3>
-    </div>
-</div>
-
-
-<div class="row">
-    <div class="col-lg-8 mb-4">
-        <div class="card card-small mb-4">
-            <div class="card-header">
-                <h6 class="m-0">Status</h6>
+<!doctype html>
+<html lang="en">
+    <head>
+        <meta charset="utf-8">
+            <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+            <title>Angular Gridster</title>
+            <meta name="description" content="" />
+            <base href="/">
                 
-            </div>
-            <div class="card-body p-0 pb-3 text-center">
-                <table class="table mb-0" id="table1">
+                <meta name="viewport" content="width=device-width, initial-scale=1">
                     
-                    <tbody>
-                        <tr>
-                            <td>a1</td>
-                            <td>b1</td>
-                            
-                        </tr>
-                        <tr>
-                            <td>a2</td>
-                            <td>b2</td>
-                            
-                        </tr>
-                        <tr>
-                            <td>a3</td>
-                            <td>b3</td>
-                            
-                        </tr>
-                        <tr>
-                            <td>a4</td>
-                            <td>b4</td>
-                            
-                        </tr>
-                    </tbody>
-                </table>
-            </div>
+                    
+                    <link href="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/3.0.3/css/bootstrap.css" rel="stylesheet">
+                        
+                        
+                        
+                        <script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.3.15/angular.js"></script>
+                        <script src="https://code.angularjs.org/1.2.15/angular-route.min.js"></script>
+                        <script src="https://cdnjs.cloudflare.com/ajax/libs/angular-ui-bootstrap/0.10.0/ui-bootstrap-tpls.min.js"></script>
+                        
+                        <script src="{{ url_for('static',filename='angular/angular.js') }}"></script>
+                        
+                        <script type="text/javascript">
+                            (function() {
+                             angular.module('app', ['gridster', 'ui.bootstrap', 'ngRoute'])
+                             .config(['$routeProvider',
+                                      function($routeProvider) {
+                                      $routeProvider
+                                      .when('/dashboard', {
+                                            templateUrl: 'view.html',
+                                            controller: 'DashboardCtrl'
+                                            })
+                                      .otherwise({
+                                                 redirectTo: '/dashboard'
+                                                 });
+                                      }
+                                      ])
+                             .controller('RootCtrl', function($scope) {
+                                         $scope.$on('$locationChangeStart', function(e, next, current) {
+                                                    $scope.page = next.split('/').splice(-1);
+                                                    });
+                                         });
+                             })();
+                            </script>
+                        <script src="{{ url_for('static',filename='angular/script.js') }}"></script>
+    </head>
+    
+    <body ng-app="app">
+        <div ng-controller="RootCtrl">
+            <link rel="stylesheet" ng-href="{{ styleUrl }}" />
+            
+            
+            <div class="container" ng-view></div>
+            
         </div>
-    </div>
-    
-    <button id="addbtn">Add</button>
-    
-    <div class="col-lg-4 mb-4">
-        
-        
-        <div class="card card-small mb-4">
-            <div class="card-header border-bottom">
-                <h6 class="m-0">Settings </h6>
-            </div>
-            <ul class="list-group list-group-flush">
-                <li class="list-group-item px-3">
-                    <div class="mb-2">
-                        <fieldset>
-                            <div class="custom-control custom-checkbox mb-1">
-                                <input type="checkbox" class="custom-control-input" id="tick1" checked>
-                                    <label class="custom-control-label" for="tick1">tick1</label>
-                                    </div>
-                            <div class="custom-control custom-checkbox mb-1">
-                                <input type="checkbox" class="custom-control-input" id="tick2">
-                                    <label class="custom-control-label" for="tick2">tick2</label>
-                                    </div>
-                            <div class="custom-control custom-checkbox mb-1">
-                                <input type="checkbox" class="custom-control-input" id="tick3" checked>
-                                    <label class="custom-control-label" for="tick3">tick3</label>
-                                    </div>
-                            <div class="custom-control custom-checkbox mb-1">
-                                <input type="checkbox" class="custom-control-input" id="tick4">
-                                    <label class="custom-control-label" for="tick4">tick4</label>
-                                    </div>
-                        </fieldset>
-                    </div>
-                    </div>
-        </ul>
-    </div>
-<script>
-$("#addbtn").click(function(){
-    var table = document.getElementById("table1");
-    $("#table1").append("<table class='table mb-0' id='table1'><tbody><tr><td>a1</td><td>b1</td></tr><tr><td>a2</td><td>b2</td></tr><tr><td>a3</td><td>b3</td></tr><tr><td>a4</td><td>b4</td></tr></tbody></table>");
-    
-});
-</script>
-
+        <script src="{{ url_for('static',filename='angular/runtime.js') }}"></script>
+        <script src="{{ url_for('static',filename='angular/es2015-polyfills.js') }}"></script>
+        <script src="{{ url_for('static',filename='angular/polyfills.js') }}"></script>
+        <script src="{{ url_for('static',filename='angular/vendor.js') }}"></script>
+        <script src="{{ url_for('static',filename='angular/main.js') }}"></script>
+</html>
 {% endblock %}
