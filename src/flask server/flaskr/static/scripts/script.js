@@ -3,7 +3,7 @@ angular.module('app')
 .controller('DashboardCtrl', ['$scope', '$timeout',
 	function($scope, $timeout) {
 		$scope.gridsterOptions = {
-			margins: [25, 0],
+			margins: [0, -50],
 			columns: 6,
 			draggable: {
 				handle: 'h3'
