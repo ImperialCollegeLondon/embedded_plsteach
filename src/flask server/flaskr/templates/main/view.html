@@ -1,9 +1,9 @@
 <div class="page-header">
-	<a class="pull-right btn btn-primary" ng-click="addWidget()"><i class="glyphicon glyphicon-plus"></i> Add Widget</a>
-	<a class="pull-right btn btn-warning" ng-click="clear()"><i class="glyphicon glyphicon-trash"></i> Clear</a>
-	<h1 style="display: inline-block; width: 200px;">Dashboard</h1>
+
 	<select class="form-control" style="width: 150px; margin-bottom: 20px; display:inline-block;" ng-change="changeDashboard()" ng-model="selectedDashboardId" ng-options="d.id as d.name for d in dashboards | object2Array | orderBy:'id'">
 	</select>
+  	<a ng-click="addWidget()">Add Sensor</a>
+	<a ng-click="clear()">Delete all</a>
 
 </div>
 <div gridster="gridsterOptions">
@@ -11,10 +11,13 @@
 		<li gridster-item="widget" ng-repeat="widget in dashboard.widgets">
 			<div class="box" ng-controller="CustomWidgetCtrl">
 				<div class="box-header">
-					<h3>{{ widget.name }}</h3>
+					<h3>sensor name</h3> Status
+          <br>Pin no.:
+          <br>Sample rate:
+          <br>MQTT topic: 
 					<div class="box-header-btns pull-right">
-						<a title="settings" ng-click="openSettings(widget)"><i class="glyphicon glyphicon-cog"></i></a>
-						<a title="Remove widget" ng-click="remove(widget)"><i class="glyphicon glyphicon-trash"></i></a>
+						<a title="settings" ng-click="openSettings(widget)">setting</i></a>
+						<a title="Remove widget" ng-click="remove(widget)">delete</a>
 					</div>
 				</div>
 				<div class="box-content">
