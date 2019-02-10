@@ -1,58 +1,58 @@
 <div>
-    <form name="_form" class="form-horizontal" ng-submit="submit(_form)">
-        <div class="modal-header">
-            <button type="button" class="close" ng-click="dismiss()" aria-hidden="true">&times;</button>
+    <form name="_form" ng-submit="submit(_form)">
+        <div>
+            <button type="button" ng-click="dismiss()" aria-hidden="true">&times;</button>
             <h3>Sensor Settings</h3>
         </div>
 
-        <div class="modal-body">
-            <div class="form-group" ng-class="{error: _form.name.$error && _form.submitted}">
-                <label class="control-label col-lg-3 col-md-3">Name</label>
-                <div class="col-lg-9 col-md-9">
-                    <input name="name" type="text" ng-model="form.name" class="form-control" />
+        <div>
+            <div ng-class="{error: _form.name.$error && _form.submitted}">
+                <label>Name</label>
+                <div>
+                    <input name="name" type="text" ng-model="form.name" />
                 </div>
             </div>
-            <div class="row">
-                <div class="col-lg-6 col-md-6">
-                    <div class="form-group" ng-class="{error: _form.sizeX.$error && _form.submitted}">
-                        <label class="control-label col-lg-6 col-md-6">Pin no.</label>
-                        <div class="col-lg-6 col-md-6">
-                            <input name="Pin no."  type="text" class="form-control" />
+            <div>
+                <div>
+                    <div ng-class="{error: _form.sizeX.$error && _form.submitted}">
+                        <label>Pin no.</label>
+                        <div>
+                            <input name="Pin no."  type="text"/>
                         </div>
                     </div>
                 </div>
-                <div class="col-lg-6 col-md-6">
-                    <div class="form-group">
-                        <label class="control-label col-lg-6 col-md-6">Sample Rate</label>
-                        <div class="col-lg-6 col-md-6">
-                            <input name="Sample rate" type="text" class="form-control" />
+                <div>
+                    <div>
+                        <label>Sample Rate</label>
+                        <div>
+                            <input name="Sample rate" type="text"/>
                         </div>
                     </div>
                 </div>
 
-                <div class="col-lg-6 col-md-6">
-                    <div class="form-group" ng-class="{error: _form.sizeX.$error && _form.submitted}">
-                        <label class="control-label col-lg-6 col-md-6">MQTT Topic</label>
-                        <div class="col-lg-6 col-md-6">
-                            <input name="MQTT topic" ng-model="form.col" class="form-control" />
+                <div>
+                    <div ng-class="{error: _form.sizeX.$error && _form.submitted}">
+                        <label>MQTT Topic</label>
+                        <div>
+                            <input name="MQTT topic" ng-model="form.col"/>
                         </div>
                     </div>
                 </div>
-                <div class="col-lg-6 col-md-6">
-                    <div class="form-group">
-                        <label class="control-label col-lg-6 col-md-6">blank for now</label>
-                        <div class="col-lg-6 col-md-6">
-                            <input name="row" ng-model="form.row" class="form-control" />
+                <div>
+                    <div>
+                        <label>blank for now</label>
+                        <div>
+                            <input name="row" ng-model="form.row"/>
                         </div>
                     </div>
                 </div>
             </div>
         </div>
 
-        <div class="modal-footer">
-            <a ng-click="remove()" class="btn btn-danger pull-left" tabindex="-1"><i class="glyphicon glyphicon-trash"></i>Delete</a>
-            <a ng-click="dismiss()" class="btn btn-default" tabindex="-1"><i class="glyphicon glyphicon-remove"></i>Cancel</a>
-            <button type="submit" class="btn btn-primary btn-lg"><i class="glyphicon glyphicon-ok"></i>Save</button>
+        <div>
+            <a ng-click="remove()" tabindex="-1">Delete</a>
+            <a ng-click="dismiss()" tabindex="-1">Cancel</a>
+            <button type="submit">Save</button>
         </div>
     </form>
 </div>
