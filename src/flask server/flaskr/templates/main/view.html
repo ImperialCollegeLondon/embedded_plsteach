@@ -1,58 +1,57 @@
-<div>
-    <form name="_form" class="form-horizontal" ng-submit="submit(_form)">
-        <div class="modal-header">
-            <button type="button" class="close" ng-click="dismiss()" aria-hidden="true">&times;</button>
-            <h3>Sensor Settings</h3>
-        </div>
 
-        <div class="modal-body">
-            <div class="form-group" ng-class="{error: _form.name.$error && _form.submitted}">
-                <label class="control-label col-lg-3 col-md-3">Name</label>
-                <div class="col-lg-9 col-md-9">
-                    <input name="name" type="text" ng-model="form.name" class="form-control" />
-                </div>
-            </div>
-            <div class="row">
-                <div class="col-lg-6 col-md-6">
-                    <div class="form-group" ng-class="{error: _form.sizeX.$error && _form.submitted}">
-                        <label class="control-label col-lg-6 col-md-6">Pin no.</label>
-                        <div class="col-lg-6 col-md-6">
-                            <input name="Pin no."  type="text" class="form-control" />
-                        </div>
+<div class="row">
+    <div class="col">
+        <div class="card card-small mb-4">
+            <div class="card-header"></div>
+            <div class="card-body p-0 pb-3">
+                <div class="row">
+                    <div class="col-sm-12 col-md-1"></div>
+                    <div class="col-sm-12 col-md-7">
+                        <a ng-click="addWidget()"><button type="button" class="mb-2 btn btn-primary mr-2">Add Sensor</button></a>
+                        <a ng-click="clear()"><button type="button" class="mb-2 btn btn-outline-warning mr-2">Delete all</button></a>
                     </div>
-                </div>
-                <div class="col-lg-6 col-md-6">
-                    <div class="form-group">
-                        <label class="control-label col-lg-6 col-md-6">Sample Rate</label>
-                        <div class="col-lg-6 col-md-6">
-                            <input name="Sample rate" type="text" class="form-control" />
-                        </div>
-                    </div>
-                </div>
-
-                <div class="col-lg-6 col-md-6">
-                    <div class="form-group" ng-class="{error: _form.sizeX.$error && _form.submitted}">
-                        <label class="control-label col-lg-6 col-md-6">MQTT Topic</label>
-                        <div class="col-lg-6 col-md-6">
-                            <input name="MQTT topic" ng-model="form.col" class="form-control" />
-                        </div>
-                    </div>
-                </div>
-                <div class="col-lg-6 col-md-6">
-                    <div class="form-group">
-                        <label class="control-label col-lg-6 col-md-6">blank for now</label>
-                        <div class="col-lg-6 col-md-6">
-                            <input name="row" ng-model="form.row" class="form-control" />
-                        </div>
+                    <div class="col-sm-12 col-md-3">
+                        <select id="inputState" class="form-control" ng-change="changeDashboard()" ng-model="selectedDashboardId" ng-options="d.id as d.name for d in dashboards | object2Array | orderBy:'id'">
+                        </select>
                     </div>
                 </div>
             </div>
         </div>
+    </div>
+</div>
 
-        <div class="modal-footer">
-            <a ng-click="remove()" class="btn btn-danger pull-left" tabindex="-1"><i class="glyphicon glyphicon-trash"></i>Delete</a>
-            <a ng-click="dismiss()" class="btn btn-default" tabindex="-1"><i class="glyphicon glyphicon-remove"></i>Cancel</a>
-            <button type="submit" class="btn btn-primary btn-lg"><i class="glyphicon glyphicon-ok"></i>Save</button>
+
+
+
+
+    
+<div class="row">
+    <div class="col">
+        <div gridster="gridsterOptions">
+            <div gridster-item="widget" ng-repeat="widget in dashboard.widgets">
+                    <div class="card card-small mb-4" ng-controller="CustomWidgetCtrl">
+                        <div class="card-header border-bottom">
+                            <h7>sensor name from python</h7>
+                        </div>
+                        <ul class="list-group list-group-flush">
+                            <li class="list-group-item p-0 px-3 pt-3">
+                                <div class="row">
+                                    <div class="col-sm-12 col-md-8 mb-3">
+                                        Pin no.:
+                                        <br>Sample rate:
+                                        <br>MQTT topic:
+                                    </div>
+                                    <div style="text-align:right" class="col-sm-12 col-md-4 mb-3">
+                                        Status:
+                                        <br><a title="settings" ng-click="openSettings(widget)"><button type="button" class="mb-2 btn btn-sm btn-primary mr-1">Settings</button></a>
+                                        <a title="Remove widget" ng-click="remove(widget)"><button type="button" class="mb-2 btn btn-sm btn-warning mr-1">Delete</button></a>
+                                    </div>
+                                </div>
+                            </li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
         </div>
-    </form>
+    </div>
 </div>
