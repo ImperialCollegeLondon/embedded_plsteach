@@ -1,65 +1,62 @@
 {% extends 'base.html' %}
 
 {% block header %}
-{% block title %}Settings{% endblock %}
+
 
 {% endblock %}
 
 {% block content %}
-<!doctype html>
 <html lang="en">
     <head>
         <meta charset="utf-8">
-            <meta http-equiv="X-UA-Compatible" content="IE=edge" />
-            <meta name="description" content="" />
-            <base href="/">
-                
-                <meta name="viewport" content="width=device-width, initial-scale=1">
+        <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+        <meta name="description" content="" />
+        <base href="/">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
                     
          <link rel="stylesheet" type="text/css" href="{{ url_for('static',filename='styles/bootstrap.css') }}">
-
-                        <script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.3.15/angular.js"></script>
-                        <script src="https://code.angularjs.org/1.2.15/angular-route.min.js"></script>
-                        <script src="https://cdnjs.cloudflare.com/ajax/libs/angular-ui-bootstrap/0.10.0/ui-bootstrap-tpls.min.js"></script>
-                        
-                        <script src="{{ url_for('static',filename='scripts/angular.js') }}"></script>
-                        
-                        <script type="text/javascript">
-                            (function() {
-                             angular.module('app', ['gridster', 'ui.bootstrap', 'ngRoute'])
-                             .config(['$routeProvider',
-                                      function($routeProvider) {
-                                      $routeProvider
-                                      .when('/dashboard', {
-                                            templateUrl: 'main/view',
-                                            controller: 'DashboardCtrl'
-                                            })
-                                      .otherwise({
-                                                 redirectTo: '/dashboard'
-                                                 });
-                                      }
-                                      ])
-                             .controller('RootCtrl', function($scope) {
-                                         $scope.$on('$locationChangeStart', function(e, next, current) {
-                                                    $scope.page = next.split('/').splice(-1);
-                                                    });
-                                         });
-                             })();
-                            </script>
-
-                        <script src="{{ url_for('static',filename='scripts/script.js') }}"></script>
+        <script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.3.15/angular.js"></script>
+        <script src="https://code.angularjs.org/1.2.15/angular-route.min.js"></script>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/angular-ui-bootstrap/0.10.0/ui-bootstrap-tpls.min.js"></script>
+        <script src="{{ url_for('static',filename='scripts/angular.js') }}"></script>
+        <script type="text/javascript">
+            (function() {
+             angular.module('app', ['gridster', 'ui.bootstrap', 'ngRoute'])
+             .config(['$routeProvider',
+                      function($routeProvider) {
+                      $routeProvider
+                      .when('/dashboard', {
+                            templateUrl: 'main/view',
+                            controller: 'DashboardCtrl'
+                            })
+                      .otherwise({
+                                 redirectTo: '/dashboard'
+                                 });
+                      }
+                      ])
+             .controller('RootCtrl', function($scope) {
+                         $scope.$on('$locationChangeStart', function(e, next, current) {
+                                    $scope.page = next.split('/').splice(-1);
+                                    });
+                         });
+             })();
+        </script>
+        <script src="{{ url_for('static',filename='scripts/script.js') }}"></script>
     </head>
-    
+    <div class="col-12">
+    <div class="page-header row no-gutters py-4">
+        <div class="col-12 col-sm-4 text-center text-sm-left mb-0">
+            <h3 class="page-title">{% block title %}Settings{% endblock %}</h3>
+        </div>
+    </div>
     <body ng-app="app">
+        
         <div ng-controller="RootCtrl">
             <link rel="stylesheet" ng-href="{{ styleUrl }}" />
-            
-            
             <div class="container" ng-view></div>
-            
         </div>
+    </div>
     </body>
-    
 </html>
 
 {% endblock %}
