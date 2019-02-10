@@ -102,6 +102,7 @@ def home():
 @bp.route('/plot')
 @login_required
 def plot():
+    Disconnect()
     return render_template('main/plot.html')
 
 @bp.route('/status')
@@ -109,7 +110,7 @@ def plot():
 def status():
     return render_template('main/status.html')
        
-@socketio.on('connect')
+@socketio.on('connect', namespace='/main/plot')
 def OnConnect():
     print('WS Client is CONNECTED')
     global connector
@@ -118,22 +119,21 @@ def OnConnect():
     print('SERVER is READY')
     socketio.emit('Server_Ready')
 
-@socketio.on('start_transmit')
+@socketio.on('start_transmit', namespace='/main/plot')
 def start_transmit():
     connector.start_transmit()
-
-
+    
 @socketio.on('stop_transmit')
 def stop_transmit():
     connector.stop_transmit()
 
-@socketio.on('disconnect')
-def onDisconnect():
+@socketio.on('disconnect', namespace='/main/plot')
+def Disconnect():
     print('WS Client is DISCONNECTED')
     connector.onDisconnect()
     print('Threads STOPPED')
     
-@socketio.on('save')
+@socketio.on('save', namespace='/main/plot')
 def save_record():
     db = get_db()
     error = None

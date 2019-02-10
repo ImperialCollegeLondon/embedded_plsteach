@@ -50,9 +50,7 @@
         
         <script>
             $(function() {
-              var socket = io.connect('http://localhost:5000');
-              socket.on('connect', function() {
-                        socket.emit('connect_event')});
+              var socket = io.connect('http://localhost:5000/main/plot');
               
               var data = [
                           {label: 'A', values: [{x: 0, y:0 }]},
@@ -86,7 +84,7 @@
                                      else {
                                      $(e.target).text('Pause');
                                      socket.emit('start_transmit')
-                                     interval = setInterval(pushPoint, 10);
+                                     interval = setInterval(pushPoint, 100);
                                      pushPoint();
                                      }
                                      playing = !playing;
