@@ -109,7 +109,17 @@ def plot():
 @login_required
 def status():
     return render_template('main/status.html')
-       
+
+@bp.route('/widget_settings')
+@login_required
+def widget_settings():
+    return render_template('main/widget_settings.html')   
+
+@bp.route('/view')
+@login_required
+def view():
+    return render_template('main/view.html') 
+
 @socketio.on('connect', namespace='/main/plot')
 def OnConnect():
     print('WS Client is CONNECTED')
