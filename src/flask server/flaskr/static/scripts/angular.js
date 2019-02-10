@@ -34,13 +34,13 @@
 		isMobile: false, // toggle mobile view
 		mobileBreakPoint: 600, // width threshold to toggle mobile mode
 		mobileModeEnabled: true, // whether or not to toggle mobile mode when screen width is less than mobileBreakPoint
-		minColumns: 3, // minimum amount of columns the grid can scale down to
+		minColumns: 4, // minimum amount of columns the grid can scale down to
 		minRows: 1, // minimum amount of rows to show if the grid is empty
 		maxRows: 100, // maximum amount of rows in the grid
-		defaultSizeX: 3, // default width of an item in columns
+		defaultSizeX: 4, // default width of an item in columns
 		defaultSizeY: 1, // default height of an item in rows
-		minSizeX: 3, // minimum column width of an item
-		maxSizeX: 3, // maximum column width of an item
+		minSizeX: 4, // minimum column width of an item
+		maxSizeX: 4, // maximum column width of an item
 		minSizeY: 1, // minumum row height of an item
 		maxSizeY: 1, // maximum row height of an item
 		saveGridItemCalculatedHeightInMobile: false, // grid item height in mobile display. true- to use the calculated height by sizeY given
