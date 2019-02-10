@@ -3,7 +3,7 @@ angular.module('app')
 .controller('DashboardCtrl', ['$scope', '$timeout',
 	function($scope, $timeout) {
 		$scope.gridsterOptions = {
-			margins: [20, 20],
+			margins: [25, 0],
 			columns: 6,
 			draggable: {
 				handle: 'h3'
@@ -18,7 +18,7 @@ angular.module('app')
 					col: 0,
 					row: 0,
 					sizeY: 1,
-					sizeX: 2,
+					sizeX: 4,
 					name: "Your First Sensor"
 				}
         ]
@@ -28,9 +28,9 @@ angular.module('app')
 				name: 'Piano',
 				widgets: [{
 					col: 0,
-					row: 1,
+					row: 0,
 					sizeY: 1,
-					sizeX: 2,
+					sizeX: 4,
 					name: "Another Settings"
 				}]
 			}
