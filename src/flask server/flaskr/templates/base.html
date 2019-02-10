@@ -4,7 +4,7 @@
         <title>{% block title %}{% endblock %} - plz teach</title>
         <meta charset="utf-8">
         <meta http-equiv="x-ua-compatible" content="ie=edge">
-        <meta name="description" content="A high-quality &amp; free Bootstrap admin dashboard template pack that comes with lots of templates and components.">
+        <meta name="description">
         <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
         <link href="https://use.fontawesome.com/releases/v5.0.6/css/all.css" rel="stylesheet">
         <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
@@ -12,11 +12,21 @@
         <link rel="stylesheet" href="{{ url_for('static',filename='styles/shards-dashboards.1.1.0.min.css') }}">
         <link rel="stylesheet" href="{{ url_for('static',filename='styles/extras.1.1.0.min.css') }}">
         <script async defer src="https://buttons.github.io/buttons.js"></script>
+        <script src="https://code.jquery.com/jquery-3.3.1.min.js" integrity="sha256-FgpCb/KJQlLNfOu91ta32o/NMZxltwRo8QtmkMRdAu8=" crossorigin="anonymous"></script>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.3/umd/popper.min.js" integrity="sha384-ZMP7rVo3mIykV+2+9J3UJ46jBk0WLaUAdn689aCwoqbBJiSnjAK/l8WvCWPIPm49" crossorigin="anonymous"></script>
+        <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.1.3/js/bootstrap.min.js" integrity="sha384-ChfqqxuZUCnJSK3+MXmPNIyE6ZbWh2IMqE241rYiqJxyMiZ6OW/JmZQ5stwEULTy" crossorigin="anonymous"></script>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.7.1/Chart.min.js"></script>
+        <script src="https://unpkg.com/shards-ui@latest/dist/js/shards.min.js"></script>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/Sharrre/2.0.1/jquery.sharrre.min.js"></script>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/quill/1.3.6/quill.min.js"></script>
+        <script src="{{ url_for('static',filename='scripts/app-blog-new-post.1.1.0.js') }}"></script>
 
 
 
-    </head>
-
+        </head>
+    
+    
+    <!-- Main Sidebar -->
     <body>
         <aside class="main-sidebar col-12 col-md-3 col-lg-2 px-0">
             <div class="main-navbar">
@@ -24,8 +34,8 @@
                     <a class="navbar-brand w-100 mr-0" style="line-height: 25px;" href="{{ url_for('main.home') }}">
                         <div class="d-table m-auto">
                             
-                                <span class="d-none d-md-inline ml-1" style="font-size: 24px;"><i class="material-icons" style="color:#2c7bec">queue_music</i></span><span style="display:inline-block; vertical-align:text-bottom">&ensp;iPong Dashboard</span>
-                                </div>
+                            <span class="d-none d-md-inline ml-1" style="font-size: 24px;"><i class="material-icons">queue_music</i></span><span style="display:inline-block; vertical-align:text-bottom">&ensp;iPong Dashboard</span>
+                        </div>
                     </a>
                     <a class="toggle-sidebar d-sm-inline d-md-none d-lg-none">
                         <i class="material-icons">&#xE5C4;</i>
@@ -36,43 +46,43 @@
             <div class="nav-wrapper">
                 <ul class="nav flex-column">
                     {% if g.user %}
-                        <li class="nav-item">
-                            <a class="nav-link " href="{{ url_for('main.home') }}">
-                                <i class="material-icons">home</i>
-                                <span>Home</span>
-                            </a>
-                        </li>
-                        <li class="nav-item">
-                            <a class="nav-link " href="{{ url_for('main.plot') }}">
-                                <i class="material-icons">play_circle_filled</i>
-                                <span>My Data</span>
-                            </a>
-                        </li>
-                        <li class="nav-item">
-                            <a class="nav-link " href="{{ url_for('main.status') }}">
-                                <i class="material-icons">settings</i>
-                                <span>Setting</span>
-                            </a>
-                        </li>
-     
+                    <li class="nav-item">
+                        <a class="nav-link " href="{{ url_for('main.home') }}">
+                            <i class="material-icons">home</i>
+                            <span>Home</span>
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link " href="{{ url_for('main.plot') }}">
+                            <i class="material-icons">play_circle_filled</i>
+                            <span>My Data</span>
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link " href="{{ url_for('main.status') }}">
+                            <i class="material-icons">settings</i>
+                            <span>Setting</span>
+                        </a>
+                    </li>
+                    
                     {% else %}
-                        <li class="nav-item">
-                            <a class="nav-link " href="{{ url_for('index') }}">
-                                <i class="material-icons">home</i>
-                                <span>Home</span>
-                            </a>
-                        </li>
+                    <li class="nav-item">
+                        <a class="nav-link " href="{{ url_for('index') }}">
+                            <i class="material-icons">home</i>
+                            <span>Home</span>
+                        </a>
+                    </li>
                     {% endif %}
                     
                     
-
+                    
                 </ul>
             </div>
         </aside>
         <!-- End Main Sidebar -->
         
         <!-- End Main Sidebar -->
-
+        
         <main class="main-content col-lg-10 col-md-9 col-sm-12 p-0 offset-lg-2 offset-md-3">
             <div class="main-navbar sticky-top bg-white">
                 <!-- Main Navbar -->
@@ -81,51 +91,51 @@
                     </form>
                     <ul class="navbar-nav flex-row ">
                         {% if g.user %}
-                            <li class="nav-item dropdown">
-                                <a class="nav-link dropdown-toggle text-nowrap px-3" data-toggle="dropdown" href="#" role="button" aria-haspopup="true" aria-expanded="false">
-                                    <img class="user-avatar rounded-circle mr-2" src="{{
-                                        url_for('static', filename='images/avatars/default.jpg') }}" alt="User Avatar">
-                                        <span class="d-none d-md-inline-block">{{ g.user['username'] }}</span>
-                                        </a>
-                                <div class="dropdown-menu dropdown-menu-small">
-                                    <a class="dropdown-item">
-                                        <i class="material-icons">&#xE7FD;</i> Profile</a>
-                                    <div class="dropdown-divider"></div>
-                                    <a class="dropdown-item text-danger" href="{{ url_for('auth.logout') }}">
-                                        <i class="material-icons text-danger">&#xE879;</i> Logout </a>
-                                </div>
-                            </li>
-                            <nav class="nav">
-                                &emsp;&emsp;&emsp;&emsp;
-                            </nav>
+                        <li class="nav-item dropdown">
+                            <a class="nav-link dropdown-toggle text-nowrap px-3" data-toggle="dropdown" href="#" role="button" aria-haspopup="true" aria-expanded="false">
+                                <img class="user-avatar rounded-circle mr-2" src="{{
+                                    url_for('static', filename='images/avatars/default.jpg') }}" alt="User Avatar">
+                                    <span class="d-none d-md-inline-block">{{ g.user['username'] }}</span>
+                                    </a>
+                            <div class="dropdown-menu dropdown-menu-small">
+                                <a class="dropdown-item">
+                                    <i class="material-icons">&#xE7FD;</i> Profile</a>
+                                <div class="dropdown-divider"></div>
+                                <a class="dropdown-item text-danger" href="{{ url_for('auth.logout') }}">
+                                    <i class="material-icons text-danger">&#xE879;</i> Logout </a>
+                            </div>
+                        </li>
+                        <nav class="nav">
+                            &emsp;&emsp;&emsp;&emsp;
+                        </nav>
                         {% else %}
-                            <ul class="navbar-nav border-left flex-row ">
-                                <li class="nav-item border-right dropdown notifications">
-                                    <div class="nav-link-icon__wrapper">
-                                        <a href="{{ url_for('auth.register') }}" class="nav-link text-nowrap px-3" href="#" role="button" aria-haspopup="true" aria-expanded="false">
-                                            <p style="line-height:300%"><span class="d-none d-md-inline-block">&emsp;Register&emsp;</span></p>
-                                        </a>
-                                    </div>
+                        <ul class="navbar-nav border-left flex-row ">
+                            <li class="nav-item border-right dropdown notifications">
+                                <div class="nav-link-icon__wrapper">
+                                    <a href="{{ url_for('auth.register') }}" class="nav-link text-nowrap px-3" href="#" role="button" aria-haspopup="true" aria-expanded="false">
+                                        <p style="line-height:300%"><span class="d-none d-md-inline-block">&emsp;Register&emsp;</span></p>
+                                    </a>
+                                </div>
                                 <li class="nav-item dropdown">
                                     <a class="nav-link text-nowrap px-3" role="button" aria-haspopup="true" aria-expanded="false" href="{{ url_for('auth.login') }}">
                                         <p style="line-height:300%"><span class="d-none d-md-inline-block"> &emsp;Login&emsp;</span></p>
                                     </a>
                                 </li>
-                            </ul>
+                                </ul>
                     </ul>
                     <nav class="nav">
                     </nav>
-                        {% endif %}
-                                        
-                                        
-                                        
-                        
+                    {% endif %}
+                    
+                    
+                    
+                    
                     
                     
                 </nav>
             </div>
-        
-
+            
+            
             <!-- / .main-navbar -->
             <div class="main-content-container container-fluid px-4">
                 {% block content %}{% endblock %}
@@ -137,7 +147,7 @@
                 <span class="copyright ml-auto my-auto mr-2">Copyright © 2019 &emsp;
                     <a href="https://siuchan16.wixsite.com/cw1iot" rel="nofollow">
                         <img id="main-logo" style="max-height: 20px;" src="{{
-                        url_for('static', filename='images/grey.png') }}" alt="plz teach" target="_blank"></a>
+                            url_for('static', filename='images/grey.png') }}" alt="plz teach" target="_blank"></a>
                 </span>
             </footer>
         </main>
