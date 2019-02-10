@@ -1,58 +1,47 @@
 <div>
     <form name="_form" ng-submit="submit(_form)">
-        <div>
-            <button type="button" ng-click="dismiss()" aria-hidden="true">&times;</button>
-            <h3>Sensor Settings</h3>
-        </div>
-
-        <div>
-            <div ng-class="{error: _form.name.$error && _form.submitted}">
-                <label>Name</label>
-                <div>
-                    <input name="name" type="text" ng-model="form.name" />
+        <div class="card-header border-bottom">
+            <div class="row">
+                <div class="col-sm-8 col-md-7">
+                    <h6 class="m-0">Sensor Settings</h6>
                 </div>
-            </div>
-            <div>
-                <div>
-                    <div ng-class="{error: _form.sizeX.$error && _form.submitted}">
-                        <label>Pin no.</label>
-                        <div>
-                            <input name="Pin no."  type="text"/>
-                        </div>
-                    </div>
-                </div>
-                <div>
-                    <div>
-                        <label>Sample Rate</label>
-                        <div>
-                            <input name="Sample rate" type="text"/>
-                        </div>
-                    </div>
-                </div>
-
-                <div>
-                    <div ng-class="{error: _form.sizeX.$error && _form.submitted}">
-                        <label>MQTT Topic</label>
-                        <div>
-                            <input name="MQTT topic" ng-model="form.col"/>
-                        </div>
-                    </div>
-                </div>
-                <div>
-                    <div>
-                        <label>blank for now</label>
-                        <div>
-                            <input name="row" ng-model="form.row"/>
-                        </div>
-                    </div>
+                <div style="text-align:right" class="col-sm-8 col-md-5">
+                    <button type="button" ng-click="dismiss()" aria-hidden="true">&times;</button>
                 </div>
             </div>
         </div>
-
-        <div>
-            <a ng-click="remove()" tabindex="-1">Delete</a>
-            <a ng-click="dismiss()" tabindex="-1">Cancel</a>
-            <button type="submit">Save</button>
-        </div>
+        <ul class="list-group list-group-flush">
+            <li class="list-group-item px-3">
+                <strong class="text-muted d-block mb-2">Name</strong>
+                <div class="input-group mb-3">
+                    <input type="text" class="form-control" aria-describedby="basic-addon1">
+                        </div>
+                <strong class="text-muted d-block mb-2">Pin no.</strong>
+                <div class="input-group mb-3">
+                    <input type="text" class="form-control" aria-describedby="basic-addon1">
+                        </div>
+                
+                <strong class="text-muted d-block mb-2">Sample Rate</strong>
+                <div class="input-group mb-3">
+                    <input type="text" class="form-control" aria-describedby="basic-addon1">
+                        </div>
+                
+                <strong class="text-muted d-block mb-2">MQTT Topic</strong>
+                <div class="input-group mb-3">
+                    <input type="text" class="form-control" aria-describedby="basic-addon1">
+                        </div>
+                
+                <div class="row">
+                    <div class="col-sm-12 col-md-2">
+                        <a ng-click="remove()" tabindex="-1"><button type="button" class="mb-2 btn btn-sm btn-outline-warning mr-1">Delete</button></a>
+                    </div>
+                    <div style="text-align:right" class="col-sm-12 col-md-10">
+                        <a ng-click="dismiss()" tabindex="-1"><button type="button" class="mb-2 btn btn-sm btn-warning mr-1">Cancel</button></a>
+                        <button type="submit" class="mb-2 btn btn-sm btn-outline-primary mr-1">Save</button>
+                        
+                    </div>
+                </div>
+            </li>
+        </ul>
     </form>
 </div>
