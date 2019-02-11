@@ -1,4 +1,37 @@
-<div>
+<script>
+    var app2 = angular.module("app2", []);
+    app2.controller("HttpGetController", function ($scope, $http) {
+                   
+                   $scope.SendData = function () {
+                   // use $.param jQuery function to serialize data from JSON
+                   var data = $.param({
+                                      fName: $scope.firstName,
+                                      lName: $scope.lastName
+                                      });
+                   
+                   var config = {
+                   headers : {
+                   'Content-Type': 'application/x-www-form-urlencoded;charset=utf-8;'
+                   }
+                   }
+                   
+                   $http.post('/ServerRequest/PostDataResponse', data, config)
+                   .success(function (data, status, headers, config) {
+                            $scope.PostDataResponse = data;
+                            })
+                   .error(function (data, status, header, config) {
+                          $scope.ResponseDetails = "Data: " + data +
+                          "<hr />status: " + status +
+                          "<hr />headers: " + header +
+                          "<hr />config: " + config;
+                          });
+                   };
+                   
+                   });
+    </script>
+
+
+<div ng-app="app2" ng-controller="HttpGetController">>
     <form method="post" name="_form" ng-submit="submit(_form)">
         <div class="card-header border-bottom">
             <div class="row">
@@ -15,21 +48,21 @@
                 <form method="post">
                     <strong class="text-muted d-block mb-2">Name</strong>
                     <div class="input-group mb-3">
-                        <input type="text" class="form-control" aria-describedby="basic-addon1">
+                        <input type="text" class="form-control" name="sensor_name">
                             </div>
                     <strong class="text-muted d-block mb-2">Pin no.</strong>
                     <div class="input-group mb-3">
-                        <input type="text" class="form-control" aria-describedby="basic-addon1">
+                        <input type="text" class="form-control" name="pin">
                             </div>
                     
                     <strong class="text-muted d-block mb-2">Sample Rate</strong>
                     <div class="input-group mb-3">
-                        <input type="text" class="form-control" aria-describedby="basic-addon1">
+                        <input type="text" class="form-control" name="rate">
                             </div>
                     
                     <strong class="text-muted d-block mb-2">MQTT Topic</strong>
                     <div class="input-group mb-3">
-                        <input type="text" class="form-control" aria-describedby="basic-addon1">
+                        <input type="text" class="form-control" name="topic">
                             </div>
                     
                     <div class="row">
@@ -38,8 +71,9 @@
                         </div>
                         <div style="text-align:right" class="col-sm-12 col-md-10">
                             <a ng-click="dismiss()" tabindex="-1"><button type="button" class="mb-2 btn btn-sm btn-warning mr-1">Cancel</button></a>
-                            <input type="submit" value="???"  class="mb-2 btn btn-sm btn-outline-primary mr-1">Save</button>
-                            
+                            <input type="submit" value="Save" class="mb-2 btn btn-sm btn-outline-primary mr-1">
+                                <hr />
+                                {{ PostDataResponse }}
                         </div>
                     </div>
                 </form>
