@@ -9,39 +9,49 @@ import time, threading, json
 from queue import Queue
 import numpy as np
 from flask import (
-        Blueprint, flash, g, redirect, render_template, request, session, url_for,
+        Blueprint, flash, g, redirect, render_template, request, session, url_for, Flask
         )
 from flaskr.auth import login_required
 from flaskr.db import get_db
 from flask_socketio import emit, Namespace
 from . import socketio
+from flask_mqtt import Mqtt
 
 bp = Blueprint('main', __name__, url_prefix='/main')
+
+sub = 'IC.embedded/plzteach/#'
+topic = 'IC.embedded/plzteach/test'
+broker = 'test.mosquitto.org'
+app = Flask(__name__)
+app.config['MQTT_BROKER_URL'] = broker
+app.config['MQTT_BROKER_PORT'] = 1883
+mqtt = Mqtt(app)
+
 class Connections(Namespace):
-        
+
     def __init__(self, queue_length, namespace):
         super(Namespace, self).__init__(namespace)
         self.queue = Queue(10)
         self.evt = threading.Event()
         self.sender = Consumer(self.queue, self.evt, True)
         self.grabber = Producer(self.queue, self.evt, True)
-       
+
     def start_threads(self):
         self.grabber.start()
         self.sender.start()
-    
+
     def on_start_transmit(self):
         self.evt.set()
         print('Event is SET')
-        
+
     def on_stop_transmit(self):
         self.evt.clear()
         print('Event is CLEARED')
-        
+
     def on_disconnect(self):
         self.grabber.runThreads = False #kill threads
         self.sender.runThreads = False #kill threads
-    
+
     """def on_save(self):
         db = get_db()
         error = None
@@ -49,13 +59,13 @@ class Connections(Namespace):
         title = "testing"
         if not title:
             error = "Please name your record."
-    
+
         elif  db.execute(
                     'SELECT title FROM sess_records WHERE title =?', (title,)).fetchone() is not None:
                 error = 'Title {} is already there.'.format(title) #no replace
-        
+
         flash(error)
-        
+
         if error is None:
             js = connector.generateJS()
             db.execute(
@@ -64,16 +74,16 @@ class Connections(Namespace):
             db.commit()
             print("Successfully saved.")
         return self.sender.gen_JS()"""
-                
+
 class Consumer(threading.Thread):
-    
+
     def __init__(self, queue, event, runThreads):
         threading.Thread.__init__(self)
         self.data = queue
         self.event = event
         self.runThreads = runThreads
         self.list = []
-    
+
     def run(self):
         while self.runThreads:
             self.event.wait()
@@ -87,10 +97,10 @@ class Consumer(threading.Thread):
                 socketio.emit('Sensor_Dc')
                 self.runThreads = False
             time.sleep(0.2)
-    
+
     def gen_JS(self):
         return json.dumps(dict(list))
-            
+
 class Producer(threading.Thread):
 
     def __init__(self, queue, event, runThreads):
@@ -98,11 +108,11 @@ class Producer(threading.Thread):
         self.data = queue
         self.event = event
         self.runThreads = runThreads
-        
+
     def run(self):
         while self.runThreads:
             self.event.wait()
-            try: 
+            try:
                 tmp = gen_data()
                 self.data.put(tmp,True, 5)
                 print("PUT", tmp)
@@ -129,12 +139,12 @@ def status():
 @bp.route('/widget_settings')
 @login_required
 def widget_settings():
-    return render_template('main/widget_settings.html')   
+    return render_template('main/widget_settings.html')
 
 @bp.route('/view')
 @login_required
 def view():
-    return render_template('main/view.html') 
+    return render_template('main/view.html')
 
 @socketio.on('connect', namespace='/main/plot')
 def OnConnect():
@@ -149,7 +159,7 @@ def OnConnect():
 @socketio.on('start_transmit')
 def start_transmit():
     connector.start_transmit()
-    
+
 @socketio.on('stop_transmit')
 def stop_transmit():
     connector.stop_transmit()
@@ -172,9 +182,9 @@ def save_record():
     elif  db.execute(
                 'SELECT title FROM sess_records WHERE title =?', (title,)).fetchone() is not None:
             error = 'Title {} is already there.'.format(title) #no replace
-    
+
     flash(error)
-    
+
     if error is None:
         js = connector.generateJS()
         db.execute(
@@ -184,7 +194,53 @@ def save_record():
         print("Successfully saved.")
         """
 i = 0 #!!!!!!!!!!
+
+############################################################
+
+DEBUG = 0
+
+@mqtt.on_connect()
+def handle_connect(client,userdata,flags,rc):
+    print('Connected to broker: ' + broker)
+
+@mqtt.on_message()
+def handle_messages(client, userdata, message):
+    msg = (message.payload).decode('utf-8')
+    msg_dict = json.loads(msg)
+    t=msg_dict["time"]
+    res=msg_dict["result"]
+    #return res
+    print("t={}\t\t\t\tval={}".format(t,res))
+    if DEBUG:
+        passprint('Received message on topic {}: {}'
+          .format(message.topic, message.payload.decode()))
+
+@mqtt.on_publish()
+def handle_publish(client, userdata, mid):
+    if DEBUG:
+        print('Published message with mid {}.'
+          .format(mid))
+@mqtt.on_subscribe()
+def handle_subscribe(client, userdata, mid, granted_qos):
+    if DEBUG:
+        print('Subscription id {} granted with qos {}.'
+          .format(mid, granted_qos))
+
+@mqtt.on_disconnect()
+def handle_disconect():
+    print('Disconnected')
+"""
+@mqtt.on_log()
+def handle_logging(client, userdata, level, buf):
+    print(client, userdata, level, buf)
+"""
+############################################################
+
+mqtt.subscribe(sub)
+
+
+
 def gen_data():
-    global i 
+    global i
     i = i+0.1
-    return i,np.random.randint(10)
+    return i.np.random.randint(10)
