@@ -8,7 +8,7 @@ import time, threading, json
 from queue import Queue
 import numpy as np
 from flask import (
-        Blueprint, flash, g, redirect, render_template, request, session, url_for,
+        Blueprint, flash, g, redirect, render_template, request, session, url_for, Flask
         )
 from flaskr.auth import login_required
 from flaskr.db import get_db
@@ -108,7 +108,7 @@ class Consumer(threading.Thread):
 
 class Producer(threading.Thread):
 
-    def __init__(self, queue, event, runThreads):
+    def __init__(self, queue, event, runThreads, mqtt):
         threading.Thread.__init__(self)
         self.data = queue
         self.event = event
@@ -116,24 +116,24 @@ class Producer(threading.Thread):
         self.mqtt = mqtt
 
     def run(self):
-    while self.runThreads:
-        self.event.wait()
-        self.mqtt.subscribe("IC.embedded/plzteach/thomas")
-        try:
-            @self.mqtt.on_message()
-            def handle_messages(client, userdata, message):
-                msg = (message.payload).decode('utf-8')
-                msg_dict = json.loads(msg)
-                t=msg_dict["time"]
-                v=msg_dict["result"]
-                set_value(v,t)
-            v,t = read_value()
-            self.data.put([v,t],True, 5)
-            print("PUT", v)
-        except Queue.full:
-            print("Queue is full")
-            self.runThreads = False
-        time.sleep(0.2)
+        while self.runThreads:
+            self.event.wait()
+            self.mqtt.subscribe("IC.embedded/plzteach/thomas")
+            try:
+                @self.mqtt.on_message()
+                def handle_messages(client, userdata, message):
+                    msg = (message.payload).decode('utf-8')
+                    msg_dict = json.loads(msg)
+                    t=msg_dict["time"]
+                    v=msg_dict["result"]
+                    set_value(v,t)
+                v,t = read_value()
+                self.data.put([v,t],True, 5)
+                print("PUT", v)
+            except Queue.full:
+                print("Queue is full")
+                self.runThreads = False
+            time.sleep(0.2)
 
 def read_value(): #getter
     global __value
