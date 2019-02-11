@@ -11,20 +11,17 @@ import numpy as np
 from flask import (
         Blueprint, flash, g, redirect, render_template, request, session, url_for,
         )
-from flaskr.db import get_db
 from flaskr.auth import login_required
 from flaskr.db import get_db
-from flask_socketio import emit
+from flask_socketio import emit, Namespace
 from . import socketio
 
-queue_length = 10 #define queue size
 bp = Blueprint('main', __name__, url_prefix='/main')
-connector = None 
-
-class Connections():
+class Connections(Namespace):
         
-    def __init__(self, queue_length):
-        self.queue = Queue(queue_length)
+    def __init__(self, queue_length, namespace):
+        super(Namespace, self).__init__(namespace)
+        self.queue = Queue(10)
         self.evt = threading.Event()
         self.sender = Consumer(self.queue, self.evt, True)
         self.grabber = Producer(self.queue, self.evt, True)
@@ -33,20 +30,40 @@ class Connections():
         self.grabber.start()
         self.sender.start()
     
-    def start_transmit(self):
+    def on_start_transmit(self):
         self.evt.set()
         print('Event is SET')
         
-    def stop_transmit(self):
+    def on_stop_transmit(self):
         self.evt.clear()
         print('Event is CLEARED')
         
-    def onDisconnect(self):
+    def on_disconnect(self):
         self.grabber.runThreads = False #kill threads
         self.sender.runThreads = False #kill threads
     
-    def generateJS(self):
-        return self.sender.gen_JS()
+    """def on_save(self):
+        db = get_db()
+        error = None
+        #ask for title
+        title = "testing"
+        if not title:
+            error = "Please name your record."
+    
+        elif  db.execute(
+                    'SELECT title FROM sess_records WHERE title =?', (title,)).fetchone() is not None:
+                error = 'Title {} is already there.'.format(title) #no replace
+        
+        flash(error)
+        
+        if error is None:
+            js = connector.generateJS()
+            db.execute(
+                        'INSERT INTO sess_records (user_id, title, series) VALUES (?,?,?)',
+                        (session.get('user_id'), title, js))
+            db.commit()
+            print("Successfully saved.")
+        return self.sender.gen_JS()"""
                 
 class Consumer(threading.Thread):
     
@@ -102,7 +119,6 @@ def home():
 @bp.route('/plot')
 @login_required
 def plot():
-    Disconnect()
     return render_template('main/plot.html')
 
 @bp.route('/status')
@@ -123,13 +139,14 @@ def view():
 @socketio.on('connect', namespace='/main/plot')
 def OnConnect():
     print('WS Client is CONNECTED')
-    global connector
-    connector = Connections(queue_length)
-    connector.start_threads()
+    #connector = socketio.on_namespace(Connections(10,'/main/plot'))
+    #connector = Connections(10, '/main/plot')
+    #connector.start_threads()
     print('SERVER is READY')
     socketio.emit('Server_Ready')
 
-@socketio.on('start_transmit', namespace='/main/plot')
+"""
+@socketio.on('start_transmit')
 def start_transmit():
     connector.start_transmit()
     
@@ -137,13 +154,13 @@ def start_transmit():
 def stop_transmit():
     connector.stop_transmit()
 
-@socketio.on('disconnect', namespace='/main/plot')
+@socketio.on('disconnect')
 def Disconnect():
     print('WS Client is DISCONNECTED')
     connector.onDisconnect()
     print('Threads STOPPED')
-    
-@socketio.on('save', namespace='/main/plot')
+
+@socketio.on('save')
 def save_record():
     db = get_db()
     error = None
@@ -165,6 +182,7 @@ def save_record():
                     (session.get('user_id'), title, js))
         db.commit()
         print("Successfully saved.")
+        """
 i = 0 #!!!!!!!!!!
 def gen_data():
     global i 

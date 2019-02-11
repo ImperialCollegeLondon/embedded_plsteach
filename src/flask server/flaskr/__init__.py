@@ -52,5 +52,7 @@ def create_app(test_config=None):
     from. import main
     app.register_blueprint(main.bp)
     
+    from . import Connections
     socketio.init_app(app)
+    socketio.on_namespace(Connections.Connections(10, '/main/plot'))
     return app
