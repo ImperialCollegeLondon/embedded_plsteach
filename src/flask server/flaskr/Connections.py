@@ -21,13 +21,16 @@ class Connections(Namespace):
         super(Namespace, self).__init__(namespace)
         self.queue = Queue(10)
         self.evt = threading.Event()
-        self.sender = Consumer(self.queue, self.evt, True)
-        self.grabber = Producer(self.queue, self.evt, True)
        
     def on_connect(self):
+        #mqtt
+        print("WS Client is CONNECTED")
+        self.sender = Consumer(self.queue, self.evt, True)
+        self.grabber = Producer(self.queue, self.evt, True)
         self.grabber.start()
         self.sender.start()
         print("Threads are STARTED")
+        socketio.emit('Ready')
     
     def on_start_transmit(self):
         self.evt.set()
@@ -38,10 +41,11 @@ class Connections(Namespace):
         print('Event is CLEARED')
         
     def on_disconnect(self):
+        self.evt.clear()
         self.grabber.runThreads = False #kill threads
         self.sender.runThreads = False #kill threads
     
-    """def on_save(self):
+    def on_save(self):
         db = get_db()
         error = None
         #ask for title
@@ -56,13 +60,13 @@ class Connections(Namespace):
         flash(error)
         
         if error is None:
-            js = connector.generateJS()
+            js = self.sender.generateJS()
             db.execute(
                         'INSERT INTO sess_records (user_id, title, series) VALUES (?,?,?)',
                         (session.get('user_id'), title, js))
             db.commit()
             print("Successfully saved.")
-        return self.sender.gen_JS()"""
+        return self.sender.gen_JS()
                 
 class Consumer(threading.Thread):
     
@@ -102,7 +106,7 @@ class Producer(threading.Thread):
         while self.runThreads:
             self.event.wait()
             try: 
-                tmp = gen_data()
+                tmp = (1,1)
                 self.data.put(tmp,True, 5)
                 print("PUT", tmp)
             except Queue.full:
