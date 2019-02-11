@@ -26,11 +26,14 @@ def register():
         
         if not username:
             error = 'Username is required.'
+            return render_template('auth/register.html', error=error)
         elif not password:
             error = 'Password is required.'
+            return render_template('auth/register.html', error=error)
         elif db.execute(
                 'SELECT id FROM user WHERE username =?', (username,)).fetchone() is not None:
             error = 'User {} is alreqady registered.'.format(username)
+            return render_template('auth/register.html', error=error)
         
         if error is None:
             db.execute(
@@ -40,8 +43,6 @@ def register():
             return redirect(url_for('auth.login')) #generate redirect response 
                                                     #url based on view name
                                                     #link is prepended to bp
-        
-        flash(error)
         
     return render_template('auth/register.html') #return html
 
@@ -58,15 +59,15 @@ def login():
 
         if user is None:
             error = 'Incorrect username.'
+            return render_template('auth/login.html', error=error)
         elif not check_password_hash(user['password'], password):
             error = 'Incorrect password.'
+            return render_template('auth/login.html', error=error)
 
         if error is None:
             session.clear() #session is dict that stores data across requests
             session['user_id'] = user['id'] #user info loaded and made available to other views after logins
             return redirect(url_for('index'))
-
-        flash(error)
 
     return render_template('auth/login.html')
 
@@ -95,4 +96,3 @@ def login_required(view):
 def logout():
     session.clear()
     return redirect(url_for('index'))
-        
