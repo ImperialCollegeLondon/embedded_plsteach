@@ -135,6 +135,9 @@
                 </nav>
             </div>
             
+            {% if error %}
+            <div class="alert alert-danger">{{error}}</div>
+            {% endif %}
             
             <!-- / .main-navbar -->
             <div class="main-content-container container-fluid px-4">
