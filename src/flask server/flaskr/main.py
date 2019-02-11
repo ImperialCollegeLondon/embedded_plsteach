@@ -10,6 +10,7 @@ from flask import (
         )
 from flaskr.auth import login_required
 from flask_mqtt import Mqtt
+from flaskr.db import get_db
 
 bp = Blueprint('main', __name__, url_prefix='/main')
 
@@ -33,14 +34,37 @@ def plot():
     #call initilization
     return render_template('main/plot.html')
 
-@bp.route('/status')
+@bp.route('/status', methods=('GET','POST'))
 @login_required
 def status():
+
+    user_id = session.get('user_id')
+    db = get_db()
+    user_settings = db.execute(
+            'SELECT * FROM settings WHERE user_id = ?', (user_id,)
+                ).fetchall()
+    print('user: ', user_settings)
+    
+    if request.method == 'POST':
+        sensor_name = request.form['sensor_name']
+        pin_no = request.form['pin']
+        print('Posted', sensor_name, pin_no)
+        error = None        
+        config = pin_no #!!!!!!!!!!
+        if error is None:
+            db.execute(
+                    'INSERT INTO settings (user_id, sensor_name, config) VALUES (?,?,?)',
+                    (user_id, sensor_name, config))
+            db.commit()
+            return redirect(url_for('main.status'))
+        flash(error)
     return render_template('main/status.html')
 
-@bp.route('/widget_settings')
+@bp.route('/widget_settings', methods = ('GET', 'POST'))
 @login_required
 def widget_settings():
+    if request.method == 'POST':
+        print('here')
     return render_template('main/widget_settings.html')
 
 @bp.route('/view')
@@ -48,52 +72,6 @@ def widget_settings():
 def view():
     return render_template('main/view.html')
 
-"""@socketio.on('connect', namespace='/main/plot')
-def OnConnect():
-    print('WS Client is CONNECTED')
-    #connector = socketio.on_namespace(Connections(10,'/main/plot'))
-    #connector = Connections(10, '/main/plot')
-    #connector.start_threads()
-    print('SERVER is READY')
-    socketio.emit('Server_Ready')
-
-@socketio.on('start_transmit')
-def start_transmit():
-    connector.start_transmit()
-
-@socketio.on('stop_transmit')
-def stop_transmit():
-    connector.stop_transmit()
-
-@socketio.on('disconnect')
-def Disconnect():
-    print('WS Client is DISCONNECTED')
-    connector.onDisconnect()
-    print('Threads STOPPED')
-
-@socketio.on('save')
-def save_record():
-    db = get_db()
-    error = None
-    #ask for title
-    title = "testing"
-    if not title:
-        error = "Please name your record."
-
-    elif  db.execute(
-                'SELECT title FROM sess_records WHERE title =?', (title,)).fetchone() is not None:
-            error = 'Title {} is already there.'.format(title) #no replace
-
-    flash(error)
-
-    if error is None:
-        js = connector.generateJS()
-        db.execute(
-                    'INSERT INTO sess_records (user_id, title, series) VALUES (?,?,?)',
-                    (session.get('user_id'), title, js))
-        db.commit()
-        print("Successfully saved.")
-        """
 ############################################################
 
 DEBUG = 0
