@@ -21,6 +21,7 @@ app = Flask(__name__)
 app.config['MQTT_BROKER_URL'] = broker
 app.config['MQTT_BROKER_PORT'] = 1883
 mqtt = Mqtt(app)
+config_table = ['0xC3', '0xD3', '0xE3', '0xF3']
 
 @bp.route('/home')
 @login_required
@@ -40,17 +41,22 @@ def status():
 
     user_id = session.get('user_id')
     db = get_db()
-    user_settings = db.execute(
+    g.user_settings = db.execute(
             'SELECT * FROM settings WHERE user_id = ?', (user_id,)
                 ).fetchall()
-    print('user: ', user_settings)
-    
+    print('user: ', g.user_settings)
     if request.method == 'POST':
         sensor_name = request.form['sensor_name']
         pin_no = request.form['pin']
         print('Posted', sensor_name, pin_no)
         error = None        
-        config = pin_no #!!!!!!!!!!
+        config = config_table[pin_no]
+        
+        if len(g.user_setting) >=4:
+            error = 'You can have at most 4 sensors.'
+        elif sensor_name in g.user_settings:
+            error = 'Sensor already exists.'
+        
         if error is None:
             db.execute(
                     'INSERT INTO settings (user_id, sensor_name, config) VALUES (?,?,?)',
@@ -58,7 +64,9 @@ def status():
             db.commit()
             return redirect(url_for('main.status'))
         flash(error)
-    return render_template('main/status.html')
+    else:
+        
+        return render_template('main/status.html')
 
 @bp.route('/widget_settings', methods = ('GET', 'POST'))
 @login_required
