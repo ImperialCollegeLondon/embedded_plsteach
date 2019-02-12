@@ -29,7 +29,6 @@ class Connections(Namespace):
         self.evt = threading.Event()
         self.RUN_FLAG = False
         self.INIT_FLAG = True
-
     def on_connect(self):
         #mqtt
         print("WS Client is CONNECTED")
@@ -38,6 +37,10 @@ class Connections(Namespace):
         self.grabber.start()
         self.sender.start()
         print("Threads are STARTED")
+        self.queue = Queue(10)
+        self.RUN_FLAG = False
+        self.INIT_FLAG = True
+        mqtt.publish(sub_config, "[[0xC3,0xE3]]")
 
     def pause_plot(self):
         if self.RUN_FLAG == True:
@@ -56,7 +59,7 @@ class Connections(Namespace):
 
     def start_plot(self):
         if self.INIT_FLAG == True:
-            mqtt.publish(sub_config, "[[0xC3,0xE3]]")
+            mqtt.publish(sub_config, "unpause")
             self.RUN_FLAG = True
             self.INIT_FLAG = False
 
@@ -71,11 +74,12 @@ class Connections(Namespace):
         self.evt.clear()
         print('Event is CLEARED')
 
-    def on_disconnect(self):
-        print("WS Client is DISCONNECTED")
+    """def on_stop(self):
+        print("WS Client is DISCONNECTEDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDd")
+        self.stop_plot()
         self.evt.clear()
         self.grabber.runThreads = False #kill threads
-        self.sender.runThreads = False #kill threads
+        self.sender.runThreads = False #kill threads"""
 
     def on_save(self):
         db = get_db()
@@ -167,7 +171,7 @@ def handle_connect():
 def handle_disconect():
     print('MQTT Disconnected REEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEE')
 
-@mqtt.on_message()
+#@mqtt.on_message()
 def handle_messages(client, userdata, message):
     msg = (message.payload).decode()
     msg_dict = json.loads(msg)
