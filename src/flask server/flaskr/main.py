@@ -35,7 +35,6 @@ def plot():
 @bp.route('/status', methods=('GET','POST'))
 @login_required
 def status():
-
     user_id = session.get('user_id')
     db = get_db()
     g.user_settings = db.execute(

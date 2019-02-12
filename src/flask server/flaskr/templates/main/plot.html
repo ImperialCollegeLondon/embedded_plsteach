@@ -1,16 +1,12 @@
 {% extends 'base.html' %}
 
-
 {% block content %}
 
 <html>
     <head>
         <link rel="stylesheet" type="text/css" href="{{ url_for('static',filename='styles/test.css') }}">
-            <link rel="stylesheet" type="text/css" href="{{ url_for('static',filename='styles/epoch.css') }}">
                 <script src="http://code.jquery.com/jquery-1.10.1.min.js"></script>
                 <script type="text/javascript" src="//cdn.bootcss.com/socket.io/1.5.1/socket.io.min.js"></script>
-                <script src="http://d3js.org/d3.v3.js" charset="utf-8"></script>
-                <script src="{{ url_for('static',filename='scripts/epoch.js') }}"></script>
                 </head>
     <body>
 <div class="col-12">
@@ -27,11 +23,13 @@
                 <p></p>
             </div>
             <div class="card-body pt-0">
-                <div id="test-6" class="test">
-
-                <div class="epoch" style="width: 1000px; height: 265px"></div>
-                <button class="btn btn-sm btn-outline-accent">Play</button>
-              
+                <div id="chart_area" class="test">
+                    <canvas id="raw_chart"></canvas>
+                    <button class="btn btn-sm btn-outline-accent">Play</button>
+                </div>
+                <div class="test">
+                    <canvas id="proc_chart"></canvas>
+                </div>                          
                 </div>
             </div>
         </div>
@@ -40,44 +38,101 @@
 </div>
         
         <script>
-            $(function() {
-              var socket = io.connect('http://localhost:5000');
-              var data = [
-                          {label: 'A', values: [{x: 0, y:0 }]},
-                          ];
-              playing = false;
-              interval = null;
-              
-              socket.on('data_in', function(msg){
-                        data[0].values.push({x:msg.x, y:msg.y});
-                        });
-              
-              var chart = $("#test-6 .epoch").epoch({
-                                                    type: 'area',
-                                                    data: data,
-                                                    axes: ['left', 'bottom'],
-                                                    range:[0, 20],
-                                                    domain: [0, 50]
-                                                    });
-              var pushPoint = function() {
-              chart.update(data);
-              };
-              
-              $('#test-6 button').on('click', function(e) {
-                                     if (playing) {
-                                     $(e.target).text('Play');
-                                     clearInterval(interval);
-                                     socket.emit('stop_transmit')
-                                     }
-                                     else {
-                                     $(e.target).text('Pause');
-                                     socket.emit('start_transmit')
-                                     interval = setInterval(pushPoint, 100);
-                                     pushPoint();
-                                     }
-                                     playing = !playing;
-                                     });
-              });
+        var socket = io.connect('http://localhost:5000');
+        playing = false;
+        interval = null;
+        var data = [[{x:0, y:0}],[],[],[]];
+    	var color = ["rgba(231,115,115,50)","rgba(115,173,231,50)",
+                	"rgba(115,231,115,50)","rgba(231,173,115,50)"]
+        var pedal1 = new Image();
+        pedal1.src = 'https://i.imgur.com/yDYW1I7.png';
+        var pedal2 = new Image();
+        pedal2.src = 'https://i.imgur.com/DIbr9q1.png';
+        
+		var config = {
+			type: 'line',
+			data: {
+				datasets: []
+			},
+			options: {
+				responsive: true,
+				title: {
+					display: true,
+					text: 'Sensor Data Plot'
+				},
+				tooltips: {
+					mode: 'index',
+					intersect: false,
+				},
+				hover: {
+					mode: 'nearest',
+					intersect: true
+				},
+				scales: {
+					xAxes: [{
+						display: true,
+						scaleLabel: {
+							display: true,
+							labelString: 'Time'
+						}
+					}],
+					yAxes: [{
+						display: true,
+						scaleLabel: {
+							display: true,
+							labelString: 'Value'
+						}
+					}]
+				}
+			}
+		};
+          	
+         window.onload = function() {
+			var ctx = document.getElementById('raw_chart').getContext('2d');
+			window.rawCh = new Chart(ctx, config);
+			addDataSet();
+		};
+		
+          socket.on('data_in', function(msg){
+            data[0].push({x:msg.x, y:msg.y});
+        });
+          
+         function updateChart() {
+            window.rawCh.update();
+         }
+         
+         function addDataSet() {
+    		var sen_num = config.data.datasets.length;
+			var newDataset = {
+				label: 'Sensor ' + (sen_num+1),
+				backgroundColor: color[sen_num],
+				borderColor: color[sen_num],
+				data: data[sen_num],
+				fill: false
+				};
+			config.data.datasets.push(newDataset);
+			window.rawCh.update();
+		};
+          		
+         function simplify() {
+    		window.rawCh.config.data.datasets[0]._meta[0].data[0]._model.pointStyle = pedal1;
+    	 }
+          
+          $("#chart_area button").on('click', function(e) {
+                                 if (playing) {
+                                 $(e.target).text('Play');
+                                 clearInterval(interval);
+                                 socket.emit('stop_transmit')
+                                 }
+                                 else {
+                                 $(e.target).text('Pause');
+                                 socket.emit('start_transmit')
+                                 interval = setInterval(updateChart, 100);
+                                 updateChart();
+                                 }
+                                 playing = !playing;
+                                 });
+             
             </script>
         
     </body>
