@@ -16,7 +16,7 @@ from flask_socketio import emit
 
 bp = Blueprint('main', __name__, url_prefix='/main')
 config_table = ['0xC3', '0xD3', '0xE3', '0xF3']
-sub = 'IC.embedded/plzteach/thomas'
+sub = 'IC.embedded/plzteach/result'
 
 @bp.route('/home')
 @login_required

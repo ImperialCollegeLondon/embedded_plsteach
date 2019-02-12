@@ -138,13 +138,10 @@ def handle_connect():
 def handle_disconect():
     print('MQTT Disconnected')
 
-def pause(self):
-
 @mqtt.on_message()
 def handle_messages(client, userdata, message):
-    print("msg received from topic")
     msg = (message.payload).decode()
     msg_dict = json.loads(msg)
     t=msg_dict["time"]
-    v=msg_dict["result"]
+    v=msg_dict["0xc3"]
     set_value(v,t)
