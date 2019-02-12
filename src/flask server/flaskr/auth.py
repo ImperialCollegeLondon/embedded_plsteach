@@ -1,10 +1,7 @@
 # -*- coding: utf-8 -*-
 """
 Created on Fri Feb  1 11:29:21 2019
-Views: handle and respond incoming  requests
-Blueprints: group related views
-Blueprints registered to application when available
-This file contains the authentication views (blueprint)
+Define all authentication related functions under auth.bp
 @author: Sam Wan
 """
 
@@ -29,11 +26,14 @@ def register():
         
         if not username:
             error = 'Username is required.'
+            return render_template('auth/register.html', error=error)
         elif not password:
             error = 'Password is required.'
+            return render_template('auth/register.html', error=error)
         elif db.execute(
                 'SELECT id FROM user WHERE username =?', (username,)).fetchone() is not None:
             error = 'User {} is alreqady registered.'.format(username)
+            return render_template('auth/register.html', error=error)
         
         if error is None:
             db.execute(
@@ -43,8 +43,6 @@ def register():
             return redirect(url_for('auth.login')) #generate redirect response 
                                                     #url based on view name
                                                     #link is prepended to bp
-        
-        flash(error)
         
     return render_template('auth/register.html') #return html
 
@@ -61,15 +59,15 @@ def login():
 
         if user is None:
             error = 'Incorrect username.'
+            return render_template('auth/login.html', error=error)
         elif not check_password_hash(user['password'], password):
             error = 'Incorrect password.'
+            return render_template('auth/login.html', error=error)
 
         if error is None:
             session.clear() #session is dict that stores data across requests
             session['user_id'] = user['id'] #user info loaded and made available to other views after logins
             return redirect(url_for('index'))
-
-        flash(error)
 
     return render_template('auth/login.html')
 
@@ -84,8 +82,17 @@ def load_logged_in_user(): #checks if a user id is in a session, then fetch data
             'SELECT * FROM user WHERE id = ?', (user_id,)
         ).fetchone()
         
+def login_required(view):
+    @functools.wraps(view)
+    def wrapped_view(**kwargs):
+        if g.user is None:
+            return redirect(url_for('auth.login'))
+        
+        return view(**kwargs)
+    
+    return wrapped_view
+
 @bp.route('/logout')
 def logout():
     session.clear()
     return redirect(url_for('index'))
-        

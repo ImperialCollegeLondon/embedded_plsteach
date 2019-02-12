@@ -11,15 +11,6 @@
                 <script type="text/javascript" src="//cdn.bootcss.com/socket.io/1.5.1/socket.io.min.js"></script>
                 <script src="http://d3js.org/d3.v3.js" charset="utf-8"></script>
                 <script src="{{ url_for('static',filename='scripts/epoch.js') }}"></script>
-                
-                
-                <script>
-                    var nextTime = (function() {
-                                    var currentTime = parseInt(new Date().getTime() / 1000);
-                                    return function() { return currentTime++; }
-                                    });
-                                    
-                    </script>
                 </head>
     <body>
 <div class="col-12">
@@ -51,28 +42,23 @@
         <script>
             $(function() {
               var socket = io.connect('http://localhost:5000');
-              socket.on('connect', function() {
-                        socket.emit('connect_event')});
-              
               var data = [
                           {label: 'A', values: [{x: 0, y:0 }]},
                           ];
               playing = false;
               interval = null;
               
-              
-              socket.on('In_Data', function(msg){
-                        data[0].values.push({x:msg.x, y:msg.y})
+              socket.on('data_in', function(msg){
+                        data[0].values.push({x:msg.x, y:msg.y});
                         });
               
-              var chart = $('#test-6 .epoch').epoch({
+              var chart = $("#test-6 .epoch").epoch({
                                                     type: 'area',
                                                     data: data,
                                                     axes: ['left', 'bottom'],
                                                     range:[0, 20],
                                                     domain: [0, 50]
                                                     });
-              
               var pushPoint = function() {
               chart.update(data);
               };
@@ -86,7 +72,7 @@
                                      else {
                                      $(e.target).text('Pause');
                                      socket.emit('start_transmit')
-                                     interval = setInterval(pushPoint, 10);
+                                     interval = setInterval(pushPoint, 100);
                                      pushPoint();
                                      }
                                      playing = !playing;

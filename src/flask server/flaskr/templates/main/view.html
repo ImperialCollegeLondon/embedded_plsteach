@@ -1,0 +1,64 @@
+
+<div class="row">
+    <div class="col">
+        <div class="card card-small mb-4">
+            <div class="card-header"></div>
+            <div class="card-body p-0 pb-3">
+                <div class="row">
+                    <div class="col-sm-12 col-md-1"></div>
+                    <div class="col-sm-12 col-md-7">
+                        <a ng-click="addWidget()"><button type="button" class="mb-2 btn btn-primary mr-2">Add Sensor</button></a>
+                        <a ng-click="clear()"><button type="button" class="mb-2 btn btn-outline-warning mr-2">Delete all</button></a>
+                    </div>
+                    <div class="col-sm-12 col-md-3">
+                        <select id="inputState" class="form-control" ng-change="changeDashboard()" ng-model="selectedDashboardId" ng-options="d.id as d.name for d in dashboards | object2Array | orderBy:'id'">
+                        </select>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+
+
+
+    
+<div class="row">
+    <div class="col">
+        <div gridster="gridsterOptions">
+            <div gridster-item="widget" ng-repeat="widget in dashboard.widgets">
+                    <div class="card card-small mb-4" ng-controller="CustomWidgetCtrl">
+                        <div class="card-header border-bottom">
+                            <div class="row">
+                                <div class="col-sm-12 col-md-8">
+                                    <b>sensor name from python</b>
+                                </div>
+                                <div style="text-align:right" class="col-sm-12 col-md-4">
+                                     Status:
+                                </div>
+                            </div>
+                        </div>
+                        <ul class="list-group list-group-flush">
+                            <li class="list-group-item p-0 px-3 pt-3">
+                                <div class="row">
+                                    <div class="col-sm-12 col-md-8 mb-3">
+                                        Pin no.:
+                                        <br>Sample rate:
+                                        <br>MQTT topic:
+                                    </div>
+                                    <div style="text-align:right" class="col-sm-12 col-md-4 mb-3">
+                                        
+                                        <br><a title="settings" ng-click="openSettings(widget)"><button type="button" class="mb-2 btn btn-sm btn-primary mr-1">Settings</button></a>
+                                        <a title="Remove widget" ng-click="remove(widget)"><button type="button" class="mb-2 btn btn-sm btn-warning mr-1">Delete</button></a>
+                                    </div>
+                                </div>
+                            </li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

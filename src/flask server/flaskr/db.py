@@ -1,8 +1,7 @@
 # -*- coding: utf-8 -*-
 """
 Created on Fri Feb  1 10:36:33 2019
-Setup database connection, teardown
-**Need to take care of schema.sql**
+Setup database connection, teardown function and CLI function
 @author: Sam Wan
 """
 
