@@ -29,14 +29,14 @@
                 </div>
                 <div class="test">
                     <canvas id="proc_chart"></canvas>
-                </div>                          
+                </div>
                 </div>
             </div>
         </div>
     </div>
 </div>
 </div>
-        
+
         <script>
         var socket = io.connect('http://localhost:5000');
         playing = false;
@@ -48,14 +48,14 @@
         pedal1.src = 'https://i.imgur.com/yDYW1I7.png';
         var pedal2 = new Image();
         pedal2.src = 'https://i.imgur.com/DIbr9q1.png';
-        
+
 		var config = {
 			type: 'line',
 			data: {
 				datasets: []
 			},
 			options: {
-    			animation: { 
+    			animation: {
         			duration: 0,
         		},
 				responsive: true,
@@ -92,23 +92,23 @@
 				}
 			}
 		};
-          	
+
          window.onload = function() {
 			var ctx = document.getElementById('raw_chart').getContext('2d');
 			window.rawCh = new Chart(ctx, config);
 			addDataSet();
 			window.rawCh.update();
 		};
-		
+
           socket.on('data_in', function(msg){
               console.log(msg.y);
             data[0].push({x:msg.x, y:msg.y});
         });
-          
+
          function updateChart() {
             window.rawCh.update();
          }
-         
+
          function addDataSet() {
     		var sen_num = config.data.datasets.length;
 			var newDataset = {
@@ -121,11 +121,11 @@
 			config.data.datasets.push(newDataset);
 			window.rawCh.update();
 		};
-          		
+
          function simplify() {
     		window.rawCh.config.data.datasets[0]._meta[0].data[0]._model.pointStyle = pedal1;
     	 }
-          
+
           $("#chart_area button").on('click', function(e) {
                                  if (playing) {
                                  $(e.target).text('Play');
@@ -140,9 +140,9 @@
                                  }
                                  playing = !playing;
                                  });
-             
+
             </script>
-        
+
     </body>
 </html>
 

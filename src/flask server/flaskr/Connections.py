@@ -16,6 +16,8 @@ from flask_socketio import emit, Namespace
 from . import socketio
 from . import mqtt
 
+sub_config = "IC.embedded/plzteach/config"
+#sub_result = "IC.embedded/plzteach/result"
 __value = 0
 __time = 0
 
@@ -25,6 +27,8 @@ class Connections(Namespace):
         super(Namespace, self).__init__(namespace)
         self.queue = Queue(10)
         self.evt = threading.Event()
+        self.RUN_FLAG = False
+        self.INIT_FLAG = True
 
     def on_connect(self):
         #mqtt
@@ -35,12 +39,35 @@ class Connections(Namespace):
         self.sender.start()
         print("Threads are STARTED")
 
+    def pause_plot(self):
+        if self.RUN_FLAG == True:
+            mqtt.publish(sub_config, "pause")
+            self.RUN_FLAG = False
+
+
+    def unpause_plot(self):
+        if self.RUN_FLAG == False:
+            mqtt.publish(sub_config, "unpause")
+            self.RUN_FLAG = True
+
+    def stop_plot(self):
+        mqtt.publish(sub_config, "stop")
+        self.INIT_FLAG = True
+
+    def start_plot(self):
+        if self.INIT_FLAG == True:
+            mqtt.publish(sub_config, "[[0xC3,0xE3]]")
+            self.RUN_FLAG = True
+            self.INIT_FLAG = False
 
     def on_start_transmit(self):
+        self.start_plot()
+        self.unpause_plot()
         self.evt.set()
         print('Event is SET')
 
     def on_stop_transmit(self):
+        self.pause_plot()
         self.evt.clear()
         print('Event is CLEARED')
 
@@ -107,7 +134,9 @@ class Producer(threading.Thread):
 
     def run(self):
         #send starting signal to pi
-        self.mqtt.publish("IC.embedded/plzteach/config", "[[0xC3,0xE3]]")
+        #self.mqtt.publish(sub_config, "[[0xC3,0xE3]]")
+        # global RUN_FLAG
+        # RUN_FLAG = True
         time.sleep(0.1)
 
         while self.runThreads:
@@ -132,11 +161,11 @@ def set_value(y, x): #setter
     __time = x
 @mqtt.on_connect()
 def handle_connect():
-    print("MQTT Connected!")
+    print("MQTT is Connected!")
 
 @mqtt.on_disconnect()
 def handle_disconect():
-    print('MQTT Disconnected')
+    print('MQTT Disconnected REEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEE')
 
 @mqtt.on_message()
 def handle_messages(client, userdata, message):
@@ -144,4 +173,5 @@ def handle_messages(client, userdata, message):
     msg_dict = json.loads(msg)
     t=msg_dict["time"]
     v=msg_dict["0xc3"]
+    v = v-1.5
     set_value(v,t)
