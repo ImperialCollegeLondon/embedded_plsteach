@@ -12,9 +12,15 @@ from flask_socketio import SocketIO
 
 socketio = SocketIO()
 
+sub = 'IC.embedded/plzteach/thomas'
+
+mqtt = Mqtt()
+
 def create_app(test_config=None):
     # create and configure the app
     app = Flask(__name__, instance_relative_config=True) #instance folder is relative
+    app.config['MQTT_BROKER_URL'] = 'test.mosquitto.org'
+    app.config['MQTT_BROKER_PORT'] = 1883
     app.config.from_mapping(
         SECRET_KEY='dev',
         DATABASE=os.path.join(app.instance_path, 'flaskr.sqlite'), # .../instance/flaskr.sqlite saved only,
@@ -41,18 +47,19 @@ def create_app(test_config=None):
             return render_template('index.html')
         else:
             return redirect(url_for('main.home'))
-            
-    
+
+
     from . import db
     db.init_app(app) #register command and set up teardown
-    
+
     from . import auth
     app.register_blueprint(auth.bp)
-    
+
     from. import main
     app.register_blueprint(main.bp)
-    
+
     from . import Connections
     socketio.init_app(app)
     socketio.on_namespace(Connections.Connections(10, '/main/plot'))
+    mqtt.init_app(app)
     return app

@@ -14,10 +14,13 @@ from flaskr.auth import login_required
 from flaskr.db import get_db
 from flask_socketio import emit, Namespace
 from . import socketio
-from flask_mqtt import Mqtt
+from . import mqtt
 
 __value = 0
 __time = 0
+
+sub = 'IC.embedded/plzteach/result'
+broker = 'test.mosquitto.org'
 
 class Connections(Namespace):
 
@@ -28,14 +31,6 @@ class Connections(Namespace):
 
     def on_connect(self):
         #mqtt
-        sub = 'IC.embedded/plzteach/thomas'
-        topic = 'IC.embedded/plzteach/test'
-        broker = 'test.mosquitto.org'
-        app = Flask(__name__)
-        app.config['MQTT_BROKER_URL'] = broker
-        app.config['MQTT_BROKER_PORT'] = 1883
-        mqtt = Mqtt(app)
-
         print("WS Client is CONNECTED")
         self.sender = Consumer(self.queue, self.evt, True)
         self.grabber = Producer(self.queue, self.evt, True, mqtt)   #need to pass mqtt object
@@ -116,16 +111,20 @@ class Producer(threading.Thread):
         self.mqtt = mqtt
 
     def run(self):
+
+        self.mqtt.publish("IC.embedded/plzteach/config", "[[0xC3,0xE3]]")
+        time.sleep(0.1)
+
         while self.runThreads:
             self.event.wait()
-            self.mqtt.subscribe("IC.embedded/plzteach/thomas")
+            self.mqtt.subscribe(sub)
             try:
                 @self.mqtt.on_message()
                 def handle_messages(client, userdata, message):
-                    msg = (message.payload).decode('utf-8')
+                    msg = (message.payload).decode()
                     msg_dict = json.loads(msg)
                     t=msg_dict["time"]
-                    v=msg_dict["result"]
+                    v=msg_dict["0xc3"]
                     set_value(v,t)
                 v,t = read_value()
                 self.data.put([v,t],True, 5)
@@ -144,3 +143,7 @@ def set_value(y, x): #setter
     global __time
     __value = y
     __time = x
+
+@mqtt.on_disconnect()
+def handle_disconect():
+    print('MQTT Disconnected')

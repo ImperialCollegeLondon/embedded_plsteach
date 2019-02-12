@@ -9,18 +9,10 @@ from flask import (
         Blueprint, flash, g, redirect, render_template, request, session, url_for, Flask
         )
 from flaskr.auth import login_required
-from flask_mqtt import Mqtt
 from flaskr.db import get_db
+from . import mqtt
 
 bp = Blueprint('main', __name__, url_prefix='/main')
-
-sub = 'IC.embedded/plzteach/#'
-topic = 'IC.embedded/plzteach/test'
-broker = 'test.mosquitto.org'
-app = Flask(__name__)
-app.config['MQTT_BROKER_URL'] = broker
-app.config['MQTT_BROKER_PORT'] = 1883
-mqtt = Mqtt(app)
 config_table = ['0xC3', '0xD3', '0xE3', '0xF3']
 
 @bp.route('/home')
@@ -33,7 +25,7 @@ def home():
 def plot():
     #chdeck db for settings for mqtt
     #call initilization
-    mqtt.subscribe(sub) #currently doesn't do anything, need to pass to producer object
+    #mqtt.subscribe('IC.embedded/plzteach/thomas') #currently doesn't do anything, need to pass to producer object
                     #atm there's a subscribe call in producer.run()
     return render_template('main/plot.html')
 
