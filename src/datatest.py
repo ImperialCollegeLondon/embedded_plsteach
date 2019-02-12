@@ -17,7 +17,12 @@ client.publish("IC.embedded/plzteach/on", "ready")
 
 def on_message(client, userdata, message) :
 	global loop_flag
-	loop_flag = False
+	if loop_flag == True:
+		if isinstance(ast.literal_eval((message.payload).decode('utf-8')), list):
+			global setup
+			setup = (message.payload).decode('utf-8')
+			loop_flag = False
+
 	global pause
 	if (message.payload).decode('utf-8') == "pause":
 		pause = True
@@ -28,42 +33,41 @@ def on_message(client, userdata, message) :
 	if (message.payload).decode('utf-8') == "stop":
 		stop = True
 		pause = True
-	global setup
-	setup = (message.payload).decode('utf-8')
-	print(setup)
+	print((message.payload).decode('utf-8'))
 	
-
 client.on_message = on_message
 client.subscribe("IC.embedded/plzteach/config")
 client.loop_start()
 
+
 while 1:
-	loop_flag = True
-	pause = False
+	pause = True
 	stop = False
+	loop_flag = True
 	while loop_flag == True:
 		print("waiting")
 		time.sleep(10)
 
 	ADDR = 0x48
 	CONFIG_REG_1 = ast.literal_eval(setup)
+	client.publish("IC.embedded/plzteach/on", "configured")
+	print("configured")
 	bus = sb.SMBus(1)
-	begin = time.perf_counter()
 	pause_time = 0
+	real_time = 0
 
 	while stop == False:
+		begin = time.perf_counter()
 		while pause == False:
 			for sensor in CONFIG_REG_1:
 				bus.write_i2c_block_data(ADDR, 1, sensor)
 				data = bus.read_i2c_block_data(ADDR, 0 ,2)
 				result = int.from_bytes(data, 'big')/32768*4.096
-				global real_time
 				real_time = time.perf_counter() - begin - pause_time
 				payload=json.dumps({'time':real_time,hex(sensor[0]):result})
 				client.publish("IC.embedded/plzteach/result", payload)
 				print(payload)
 		pause_time = time.perf_counter() - begin - real_time
 	client.publish("IC.embedded/plzteach/on", "stopped")
-	print("stopped")
 
 client.loop_stop()
