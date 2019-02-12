@@ -16,8 +16,11 @@ from flask_socketio import emit, Namespace
 from . import socketio
 from . import mqtt
 
+sub_config = "IC.embedded/plzteach/config"
+#sub_result = "IC.embedded/plzteach/result"
 __value = 0
 __time = 0
+__RUN_FLAG = False
 
 class Connections(Namespace):
 
@@ -35,6 +38,28 @@ class Connections(Namespace):
         self.sender.start()
         print("Threads are STARTED")
 
+    def pause_plot(self):
+        global __RUN_FLAG
+        if not __RUN_FLAG:
+            mqtt.publish(sub_config, "pause")
+            __RUN_FLAG = False
+
+    def unpause_plot(self):
+        global __RUN_FLAG
+        if not __RUN_FLAG:
+            mqtt.publish(sub_config, "unpause")
+            __RUN_FLAG = False
+
+    def stop_plot(self):
+        global __RUN_FLAG
+        if not __RUN_FLAG:
+            mqtt.publish(sub_config, "stop")
+            __RUN_FLAG = False
+
+    def device_sel(self, sel):
+        global __DEVICE
+        if sel == 1 or 2 or 3:
+            __DEVICE = sel
 
     def on_start_transmit(self):
         self.evt.set()
@@ -107,7 +132,9 @@ class Producer(threading.Thread):
 
     def run(self):
         #send starting signal to pi
-        self.mqtt.publish("IC.embedded/plzteach/config", "[[0xC3,0xE3]]")
+        self.mqtt.publish(sub_config, "[[0xC3,0xE3]]")
+        global __RUN_FLAG
+        __RUN_FLAG = True
         time.sleep(0.1)
 
         while self.runThreads:
@@ -132,16 +159,18 @@ def set_value(y, x): #setter
     __time = x
 @mqtt.on_connect()
 def handle_connect():
-    print("MQTT Connected!")
+    print("MQTT is Connected!")
 
 @mqtt.on_disconnect()
 def handle_disconect():
-    print('MQTT Disconnected')
+    print('MQTT Disconnected REEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEE')
 
 @mqtt.on_message()
 def handle_messages(client, userdata, message):
+    global __DEVICE_LIST, __DEVICE
     msg = (message.payload).decode()
     msg_dict = json.loads(msg)
     t=msg_dict["time"]
-    v=msg_dict["0xc3"]
+    v=msg_dict["0xC3"]
+    v = v-1.5
     set_value(v,t)
