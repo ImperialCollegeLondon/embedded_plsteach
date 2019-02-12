@@ -41,27 +41,24 @@
         
         <script>
             $(function() {
-              var socket = io.connect('http://localhost:5000/main/plot');
+              var socket = io.connect('http://localhost:5000');
               var data = [
                           {label: 'A', values: [{x: 0, y:0 }]},
                           ];
               playing = false;
               interval = null;
               
-              
               socket.on('data_in', function(msg){
-                        console.log("Hello world!");
                         data[0].values.push({x:msg.x, y:msg.y});
                         });
               
-              var chart = $('#test-6 .epoch').epoch({
+              var chart = $("#test-6 .epoch").epoch({
                                                     type: 'area',
                                                     data: data,
                                                     axes: ['left', 'bottom'],
                                                     range:[0, 20],
                                                     domain: [0, 50]
                                                     });
-              
               var pushPoint = function() {
               chart.update(data);
               };
@@ -75,7 +72,7 @@
                                      else {
                                      $(e.target).text('Pause');
                                      socket.emit('start_transmit')
-                                     interval = setInterval(pushPoint, 10);
+                                     interval = setInterval(pushPoint, 100);
                                      pushPoint();
                                      }
                                      playing = !playing;

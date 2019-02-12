@@ -11,6 +11,8 @@ from flask import (
 from flaskr.auth import login_required
 from flaskr.db import get_db
 from . import mqtt
+from . import socketio
+from flask_socketio import emit
 
 bp = Blueprint('main', __name__, url_prefix='/main')
 config_table = ['0xC3', '0xD3', '0xE3', '0xF3']
