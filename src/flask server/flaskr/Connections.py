@@ -50,9 +50,6 @@ class Connections(Namespace):
         self.grabber.runThreads = False #kill threads
         self.sender.runThreads = False #kill threads
 
-    def transmit(self):
-        emit()
-
     def on_save(self):
         db = get_db()
         error = None

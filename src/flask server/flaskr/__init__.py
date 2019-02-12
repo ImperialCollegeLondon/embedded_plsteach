@@ -11,9 +11,6 @@ from flask_mqtt import Mqtt
 from flask_socketio import SocketIO
 
 socketio = SocketIO()
-
-sub = 'IC.embedded/plzteach/thomas'
-
 mqtt = Mqtt()
 
 def create_app(test_config=None):
@@ -60,6 +57,6 @@ def create_app(test_config=None):
 
     from . import Connections
     socketio.init_app(app)
-    socketio.on_namespace(Connections.Connections(10, '/main/plot'))
+    socketio.on_namespace(Connections.Connections(10, '/'))
     mqtt.init_app(app)
     return app
