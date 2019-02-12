@@ -31,14 +31,14 @@
 
                 <div class="epoch" style="width: 1000px; height: 265px"></div>
                 <button class="btn btn-sm btn-outline-accent">Play</button>
-              
+
                 </div>
             </div>
         </div>
     </div>
 </div>
 </div>
-        
+
         <script>
             $(function() {
               var socket = io.connect('http://localhost:5000');
@@ -47,22 +47,22 @@
                           ];
               playing = false;
               interval = null;
-              
+
               socket.on('data_in', function(msg){
                         data[0].values.push({x:msg.x, y:msg.y});
                         });
-              
+
               var chart = $("#test-6 .epoch").epoch({
                                                     type: 'area',
                                                     data: data,
                                                     axes: ['left', 'bottom'],
-                                                    range:[0, 20],
+                                                    range:[0, 1.25],
                                                     domain: [0, 50]
                                                     });
               var pushPoint = function() {
               chart.update(data);
               };
-              
+
               $('#test-6 button').on('click', function(e) {
                                      if (playing) {
                                      $(e.target).text('Play');
@@ -79,7 +79,7 @@
                                      });
               });
             </script>
-        
+
     </body>
 </html>
 
