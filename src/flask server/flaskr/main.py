@@ -29,6 +29,10 @@ def plot():
     #chdeck db for settings for mqtt
     #call initilization
     #mqtt.subscribe('IC.embedded/plzteach/thomas') #currently doesn't do anything, need to pass to producer object
+    user_id = session.get('user_id')
+    db = get_db()
+    temp = dict(db.execute('SELECT * FROM user WHERE id = ?', (user_id,)).fetchone())
+    print(temp)
     mqtt.subscribe(sub)       #atm there's a subscribe call in producer.run()
     return render_template('main/plot.html')
 
