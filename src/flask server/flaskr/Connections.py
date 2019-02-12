@@ -13,7 +13,7 @@ from flask import (
 from flaskr.auth import login_required
 from flaskr.db import get_db
 from flask_socketio import emit, Namespace
-#from . import socketio
+from . import socketio
 from . import mqtt
 
 __value = 0
@@ -29,12 +29,12 @@ class Connections(Namespace):
     def on_connect(self):
         #mqtt
         print("WS Client is CONNECTED")
-        self.sender = Consumer(self.queue, self.evt, True, self.socketio)
-        self.grabber = Producer(self.queue, self.evt, True)   #need to pass mqtt object
+        self.sender = Consumer(self.queue, self.evt, True)
+        self.grabber = Producer(self.queue, self.evt, True)
         self.grabber.start()
         self.sender.start()
         print("Threads are STARTED")
-        
+
 
     def on_start_transmit(self):
         self.evt.set()
@@ -49,11 +49,10 @@ class Connections(Namespace):
         self.evt.clear()
         self.grabber.runThreads = False #kill threads
         self.sender.runThreads = False #kill threads
-    
+
     def transmit(self):
         emit()
 
-""" 
     def on_save(self):
         db = get_db()
         error = None
@@ -61,13 +60,10 @@ class Connections(Namespace):
         title = "testing"
         if not title:
             error = "Please name your record."
-
         elif  db.execute(
                     'SELECT title FROM sess_records WHERE title =?', (title,)).fetchone() is not None:
                 error = 'Title {} is already there.'.format(title) #no replace
-
         flash(error)
-
         if error is None:
             js = self.sender.generateJS()
             db.execute(
@@ -75,13 +71,12 @@ class Connections(Namespace):
                         (session.get('user_id'), title, js))
             db.commit()
             print("Successfully saved.")
-        return self.sender.gen_JS()"""
+        return self.sender.gen_JS()
 
 class Consumer(threading.Thread):
 
-    def __init__(self, queue, event, runThreads, socketio):
+    def __init__(self, queue, event, runThreads):
         threading.Thread.__init__(self)
-        self.socketio = socketio
         self.data = queue
         self.event = event
         self.runThreads = runThreads
@@ -93,7 +88,7 @@ class Consumer(threading.Thread):
             try:
                 x, y = self.data.get(True, 50)
                 self.list.append((x,y))
-                self.socketio.emit('data_in', {'x': x, 'y': y})
+                socketio.emit('data_in', {'x': x, 'y': y})
                 print('GET', (x, y))
             except Queue.empty:
                 print("Queue is empty")
@@ -112,24 +107,18 @@ class Producer(threading.Thread):
         self.event = event
         self.runThreads = runThreads
         self.mqtt = mqtt
-    def run(self):
 
-        #self.mqtt.publish("IC.embedded/plzteach/config", "[[0xC3,0xE3]]")
-        #time.sleep(0.1)
+    def run(self):
+        #send starting signal to pi
+        self.mqtt.publish("IC.embedded/plzteach/config", "[[0xC3,0xE3]]")
+        time.sleep(0.1)
 
         while self.runThreads:
             self.event.wait()
             try:
-                @self.mqtt.on_message()
-                def handle_messages(client, userdata, message):
-                    msg = (message.payload).decode()
-                    msg_dict = json.loads(msg)
-                    t=msg_dict["time"]
-                    v=msg_dict["result"]
-                    set_value(v,t)
                 v,t = read_value()
-                self.data.put([1,1],True, 50)
-                print("PUT", (1,1))
+                self.data.put([t,v],True, 50)
+                print("PUT", (t,v))
             except Queue.full:
                 print("Queue is full")
                 self.runThreads = False
@@ -144,7 +133,21 @@ def set_value(y, x): #setter
     global __time
     __value = y
     __time = x
+@mqtt.on_connect()
+def handle_connect():
+    print("MQTT Connected!")
 
 @mqtt.on_disconnect()
 def handle_disconect():
     print('MQTT Disconnected')
+
+def pause(self):
+
+@mqtt.on_message()
+def handle_messages(client, userdata, message):
+    print("msg received from topic")
+    msg = (message.payload).decode()
+    msg_dict = json.loads(msg)
+    t=msg_dict["time"]
+    v=msg_dict["result"]
+    set_value(v,t)
