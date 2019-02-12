@@ -41,7 +41,7 @@
         var socket = io.connect('http://localhost:5000');
         playing = false;
         interval = null;
-        var data = [[],[],[],[]];
+        var data = [[{}],[],[],[]];
     	var color = ["rgba(231,115,115,50)","rgba(115,173,231,50)",
                 	"rgba(115,231,115,50)","rgba(231,173,115,50)"]
         var pedal1 = new Image();
@@ -65,6 +65,7 @@
 				},
 				scales: {
 					xAxes: [{
+    					type: 'linear',
 						display: true,
 						scaleLabel: {
 							display: true,
@@ -73,7 +74,7 @@
 						ticks: {
 						min: 0,
 						max: 60,
-						stepSize: 1
+						stepSize: 5
 						}
 					}],
 					yAxes: [{
@@ -82,6 +83,10 @@
 							display: true,
 							labelString: 'Value'
 						},
+						ticks: {
+						min: 0,
+						max: 2.5
+						}
 					}]
 				}
 			}
@@ -91,6 +96,7 @@
 			var ctx = document.getElementById('raw_chart').getContext('2d');
 			window.rawCh = new Chart(ctx, config);
 			addDataSet();
+			window.rawCh.update();
 		};
 
           socket.on('data_in', function(msg){

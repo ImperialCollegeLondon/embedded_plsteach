@@ -41,18 +41,21 @@ def plot():
 def status():
     user_id = session.get('user_id')
     db = get_db()
-    g.user_settings = db.execute(
+    db_list = list(db.execute(
             'SELECT * FROM settings WHERE user_id = ?', (user_id,)
-                ).fetchall()
+                ).fetchall())
+    g.user_settings = []
+    for row_elem in db_list:
+        g.user_settings.append(dict(row_elem))
     print('user: ', g.user_settings)
     if request.method == 'POST':
         sensor_name = request.form['sensor_name']
         pin_no = request.form['pin']
         print('Posted', sensor_name, pin_no)
         error = None
-        config = config_table[pin_no]
+        config = config_table[int(pin_no)]
 
-        if len(g.user_setting) >=4:
+        if len(g.user_settings) >=4:
             error = 'You can have at most 4 sensors.'
         elif sensor_name in g.user_settings:
             error = 'Sensor already exists.'
