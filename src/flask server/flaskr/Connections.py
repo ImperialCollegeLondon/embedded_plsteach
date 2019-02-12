@@ -30,11 +30,11 @@ class Connections(Namespace):
         #mqtt
         print("WS Client is CONNECTED")
         self.sender = Consumer(self.queue, self.evt, True)
-        self.grabber = Producer(self.queue, self.evt, True)   #need to pass mqtt object
+        self.grabber = Producer(self.queue, self.evt, True)
         self.grabber.start()
         self.sender.start()
         print("Threads are STARTED")
-        
+
 
     def on_start_transmit(self):
         self.evt.set()
@@ -57,13 +57,10 @@ class Connections(Namespace):
         title = "testing"
         if not title:
             error = "Please name your record."
-
         elif  db.execute(
                     'SELECT title FROM sess_records WHERE title =?', (title,)).fetchone() is not None:
                 error = 'Title {} is already there.'.format(title) #no replace
-
         flash(error)
-
         if error is None:
             js = self.sender.generateJS()
             db.execute(
@@ -107,24 +104,18 @@ class Producer(threading.Thread):
         self.event = event
         self.runThreads = runThreads
         self.mqtt = mqtt
-    def run(self):
 
-        #self.mqtt.publish("IC.embedded/plzteach/config", "[[0xC3,0xE3]]")
-        #time.sleep(0.1)
+    def run(self):
+        #send starting signal to pi
+        self.mqtt.publish("IC.embedded/plzteach/config", "[[0xC3,0xE3]]")
+        time.sleep(0.1)
 
         while self.runThreads:
             self.event.wait()
             try:
-                @self.mqtt.on_message()
-                def handle_messages(client, userdata, message):
-                    msg = (message.payload).decode()
-                    msg_dict = json.loads(msg)
-                    t=msg_dict["time"]
-                    v=msg_dict["result"]
-                    set_value(v,t)
                 v,t = read_value()
-                self.data.put([1,1],True, 50)
-                print("PUT", (1,1))
+                self.data.put([t,v],True, 50)
+                print("PUT", (t,v))
             except Queue.full:
                 print("Queue is full")
                 self.runThreads = False
@@ -139,7 +130,18 @@ def set_value(y, x): #setter
     global __time
     __value = y
     __time = x
+@mqtt.on_connect()
+def handle_connect():
+    print("MQTT Connected!")
 
 @mqtt.on_disconnect()
 def handle_disconect():
     print('MQTT Disconnected')
+
+@mqtt.on_message()
+def handle_messages(client, userdata, message):
+    msg = (message.payload).decode()
+    msg_dict = json.loads(msg)
+    t=msg_dict["time"]
+    v=msg_dict["0xc3"]
+    set_value(v,t)
