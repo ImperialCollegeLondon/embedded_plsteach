@@ -37,7 +37,7 @@ class Connections(Namespace):
         self.grabber.start()
         self.sender.start()
         print("Threads are STARTED")
-        socketio.emit('Ready')
+        #socketio.emit('Ready')
 
     def on_start_transmit(self):
         self.evt.set()
@@ -48,9 +48,13 @@ class Connections(Namespace):
         print('Event is CLEARED')
 
     def on_disconnect(self):
+        print("WS Client is DISCONNECTED")
         self.evt.clear()
         self.grabber.runThreads = False #kill threads
         self.sender.runThreads = False #kill threads
+
+    def on_DataGot(self):
+        print("Got Data")
 
     def on_save(self):
         db = get_db()
@@ -90,7 +94,7 @@ class Consumer(threading.Thread):
             try:
                 x, y = self.data.get(True, 5)
                 self.list.append((x,y))
-                socketio.emit('In_Data', {'x': x, 'y': y})
+                socketio.emit('data_in', {'x': x, 'y': y})
                 print('GET', (x, y))
             except Queue.empty:
                 print("Queue is empty")
@@ -128,7 +132,7 @@ class Producer(threading.Thread):
                     set_value(v,t)
                 v,t = read_value()
                 self.data.put([v,t],True, 5)
-                print("PUT", v)
+                print("PUT", (v,t))
             except Queue.full:
                 print("Queue is full")
                 self.runThreads = False
