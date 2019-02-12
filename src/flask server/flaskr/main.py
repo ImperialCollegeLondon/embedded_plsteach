@@ -13,6 +13,7 @@ from flaskr.db import get_db
 from . import mqtt
 from . import socketio
 from flask_socketio import emit
+import json
 
 bp = Blueprint('main', __name__, url_prefix='/main')
 config_table = ['0xC3', '0xD3', '0xE3', '0xF3']
@@ -29,24 +30,19 @@ def plot():
     #chdeck db for settings for mqtt
     #call initilization
     #mqtt.subscribe('IC.embedded/plzteach/thomas') #currently doesn't do anything, need to pass to producer object
-    user_id = session.get('user_id')
-    db = get_db()
-    temp = dict(db.execute('SELECT * FROM user WHERE id = ?', (user_id,)).fetchone())
-    print(temp)
     mqtt.subscribe(sub)       #atm there's a subscribe call in producer.run()
     return render_template('main/plot.html')
 
 @bp.route('/status', methods=('GET','POST'))
 @login_required
 def status():
+
     user_id = session.get('user_id')
     db = get_db()
-    db_list = list(db.execute(
+    g.user_settings = db.execute(
             'SELECT * FROM settings WHERE user_id = ?', (user_id,)
-                ).fetchall())
-    g.user_settings = []
-    for row_elem in db_list:
-        g.user_settings.append(dict(row_elem))
+                ).fetchall()
+    data = [{'sensor_name':'test1', 'pin': 1, 'topic':'t1'}, {'sensor_name':'test2', 'pin': 2, 'topic':'t2'}]
     print('user: ', g.user_settings)
     if request.method == 'POST':
         sensor_name = request.form['sensor_name']
@@ -59,17 +55,15 @@ def status():
             error = 'You can have at most 4 sensors.'
         elif sensor_name in g.user_settings:
             error = 'Sensor already exists.'
-
         if error is None:
             db.execute(
                     'INSERT INTO settings (user_id, sensor_name, config) VALUES (?,?,?)',
                     (user_id, sensor_name, config))
             db.commit()
-            return redirect(url_for('main.status'))
-        flash(error)
+            return render_template('main/status.html', data = json.dumps(data))
     else:
 
-        return render_template('main/status.html')
+        return render_template('main/status.html', data = json.dumps(data))
 
 @bp.route('/widget_settings', methods = ('GET', 'POST'))
 @login_required
