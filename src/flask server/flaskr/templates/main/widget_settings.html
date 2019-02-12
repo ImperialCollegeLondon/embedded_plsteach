@@ -1,47 +1,42 @@
 <script>
     var app2 = angular.module("app2", []);
     app2.controller("HttpGetController", function ($scope, $http) {
-                   
-                   $scope.SendData = function () {
-                   // use $.param jQuery function to serialize data from JSON
-                   var data = $.param({
-                                      fName: $scope.firstName,
-                                      lName: $scope.lastName
-                                      });
-                   
-                   var config = {
-                   headers : {
-                   'Content-Type': 'application/x-www-form-urlencoded;charset=utf-8;'
-                   }
-                   }
-                   
-                   $http.post('/ServerRequest/PostDataResponse', data, config)
-                   .success(function (data, status, headers, config) {
-                            $scope.PostDataResponse = data;
-                            })
-                   .error(function (data, status, header, config) {
-                          $scope.ResponseDetails = "Data: " + data +
-                          "<hr />status: " + status +
-                          "<hr />headers: " + header +
-                          "<hr />config: " + config;
-                          });
-                   };
-                   
-                   });
+                    
+                    $scope.SendData = function () {
+                    // use $.param jQuery function to serialize data from JSON
+                    var data = $.param({
+                                       fName: $scope.firstName,
+                                       lName: $scope.lastName
+                                       });
+                    
+                    var config = {
+                    headers : {
+                    'Content-Type': 'application/x-www-form-urlencoded;charset=utf-8;'
+                    }
+                    }
+                    
+                    $http.post('/ServerRequest/PostDataResponse', data, config)
+                    .success(function (data, status, headers, config) {
+                             $scope.PostDataResponse = data;
+                             })
+                    .error(function (data, status, header, config) {
+                           $scope.ResponseDetails = "Data: " + data +
+                           "<hr />status: " + status +
+                           "<hr />headers: " + header +
+                           "<hr />config: " + config;
+                           });
+                    };
+                    
+                    });
     </script>
 
 
-<div ng-app="app2" ng-controller="HttpGetController">>
+<div ng-app="app2" ng-controller="HttpGetController">
     <form method="post" name="_form" ng-submit="submit(_form)">
         <div class="card-header border-bottom">
-            <div class="row">
-                <div class="col-sm-8 col-md-7">
+
                     <h6 class="m-0">Sensor Settings</h6>
-                </div>
-                <div style="text-align:right" class="col-sm-8 col-md-5">
-                    <button type="button" ng-click="dismiss()" aria-hidden="true">&times;</button>
-                </div>
-            </div>
+
         </div>
         <ul class="list-group list-group-flush">
             <li class="list-group-item px-3">
@@ -55,26 +50,18 @@
                         <input type="text" class="form-control" name="pin">
                             </div>
                     
-                    <strong class="text-muted d-block mb-2">Sample Rate</strong>
-                    <div class="input-group mb-3">
-                        <input type="text" class="form-control" name="rate">
-                            </div>
-                    
                     <strong class="text-muted d-block mb-2">MQTT Topic</strong>
                     <div class="input-group mb-3">
                         <input type="text" class="form-control" name="topic">
                             </div>
                     
                     <div class="row">
-                        <div class="col-sm-12 col-md-2">
-                            <a ng-click="remove()" tabindex="-1"><button type="button" class="mb-2 btn btn-sm btn-outline-warning mr-1">Delete</button></a>
-                        </div>
-                        <div style="text-align:right" class="col-sm-12 col-md-10">
-                            <a ng-click="dismiss()" tabindex="-1"><button type="button" class="mb-2 btn btn-sm btn-warning mr-1">Cancel</button></a>
+
+                        <div style="text-align:right" class="col-sm-12 col-md-12">
                             <input type="submit" value="Save" class="mb-2 btn btn-sm btn-outline-primary mr-1">
-                                <hr />
+                                
                                 {{ PostDataResponse }}
-                        </div>
+                                </div>
                     </div>
                 </form>
             </li>
