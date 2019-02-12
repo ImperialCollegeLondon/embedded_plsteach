@@ -4,8 +4,8 @@ import json
 import paho.mqtt.client as mqtt
 import ast
 
-print("waiting for 3 s...")
-time.sleep(3)
+print("waiting for 10 s...")
+time.sleep(10)
 port_no = 8884
 
 client = mqtt.Client()
