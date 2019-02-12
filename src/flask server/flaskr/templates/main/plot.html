@@ -11,15 +11,6 @@
                 <script type="text/javascript" src="//cdn.bootcss.com/socket.io/1.5.1/socket.io.min.js"></script>
                 <script src="http://d3js.org/d3.v3.js" charset="utf-8"></script>
                 <script src="{{ url_for('static',filename='scripts/epoch.js') }}"></script>
-                
-                
-                <script>
-                    var nextTime = (function() {
-                                    var currentTime = parseInt(new Date().getTime() / 1000);
-                                    return function() { return currentTime++; }
-                                    });
-                                    
-                    </script>
                 </head>
     <body>
 <div class="col-12">
