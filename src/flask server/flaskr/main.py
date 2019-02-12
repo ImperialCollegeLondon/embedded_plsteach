@@ -14,6 +14,7 @@ from . import mqtt
 
 bp = Blueprint('main', __name__, url_prefix='/main')
 config_table = ['0xC3', '0xD3', '0xE3', '0xF3']
+sub = 'IC.embedded/plzteach/thomas'
 
 @bp.route('/home')
 @login_required
@@ -26,7 +27,7 @@ def plot():
     #chdeck db for settings for mqtt
     #call initilization
     #mqtt.subscribe('IC.embedded/plzteach/thomas') #currently doesn't do anything, need to pass to producer object
-                    #atm there's a subscribe call in producer.run()
+    mqtt.subscribe(sub)       #atm there's a subscribe call in producer.run()
     return render_template('main/plot.html')
 
 @bp.route('/status', methods=('GET','POST'))

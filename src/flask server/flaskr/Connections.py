@@ -13,14 +13,11 @@ from flask import (
 from flaskr.auth import login_required
 from flaskr.db import get_db
 from flask_socketio import emit, Namespace
-from . import socketio
+#from . import socketio
 from . import mqtt
 
 __value = 0
 __time = 0
-
-sub = 'IC.embedded/plzteach/result'
-broker = 'test.mosquitto.org'
 
 class Connections(Namespace):
 
@@ -32,12 +29,12 @@ class Connections(Namespace):
     def on_connect(self):
         #mqtt
         print("WS Client is CONNECTED")
-        self.sender = Consumer(self.queue, self.evt, True)
-        self.grabber = Producer(self.queue, self.evt, True, mqtt)   #need to pass mqtt object
+        self.sender = Consumer(self.queue, self.evt, True, self.socketio)
+        self.grabber = Producer(self.queue, self.evt, True)   #need to pass mqtt object
         self.grabber.start()
         self.sender.start()
         print("Threads are STARTED")
-        #socketio.emit('Ready')
+        
 
     def on_start_transmit(self):
         self.evt.set()
@@ -52,10 +49,11 @@ class Connections(Namespace):
         self.evt.clear()
         self.grabber.runThreads = False #kill threads
         self.sender.runThreads = False #kill threads
+    
+    def transmit(self):
+        emit()
 
-    def on_DataGot(self):
-        print("Got Data")
-
+""" 
     def on_save(self):
         db = get_db()
         error = None
@@ -77,12 +75,13 @@ class Connections(Namespace):
                         (session.get('user_id'), title, js))
             db.commit()
             print("Successfully saved.")
-        return self.sender.gen_JS()
+        return self.sender.gen_JS()"""
 
 class Consumer(threading.Thread):
 
-    def __init__(self, queue, event, runThreads):
+    def __init__(self, queue, event, runThreads, socketio):
         threading.Thread.__init__(self)
+        self.socketio = socketio
         self.data = queue
         self.event = event
         self.runThreads = runThreads
@@ -92,13 +91,13 @@ class Consumer(threading.Thread):
         while self.runThreads:
             self.event.wait()
             try:
-                x, y = self.data.get(True, 5)
+                x, y = self.data.get(True, 50)
                 self.list.append((x,y))
-                socketio.emit('data_in', {'x': x, 'y': y})
+                self.socketio.emit('data_in', {'x': x, 'y': y})
                 print('GET', (x, y))
             except Queue.empty:
                 print("Queue is empty")
-                socketio.emit('Sensor_Dc')
+                #emit('Sensor_Dc')
                 self.runThreads = False
             time.sleep(0.2)
 
@@ -107,32 +106,30 @@ class Consumer(threading.Thread):
 
 class Producer(threading.Thread):
 
-    def __init__(self, queue, event, runThreads, mqtt):
+    def __init__(self, queue, event, runThreads):
         threading.Thread.__init__(self)
         self.data = queue
         self.event = event
         self.runThreads = runThreads
         self.mqtt = mqtt
-
     def run(self):
 
-        self.mqtt.publish("IC.embedded/plzteach/config", "[[0xC3,0xE3]]")
-        time.sleep(0.1)
+        #self.mqtt.publish("IC.embedded/plzteach/config", "[[0xC3,0xE3]]")
+        #time.sleep(0.1)
 
         while self.runThreads:
             self.event.wait()
-            self.mqtt.subscribe(sub)
             try:
                 @self.mqtt.on_message()
                 def handle_messages(client, userdata, message):
                     msg = (message.payload).decode()
                     msg_dict = json.loads(msg)
                     t=msg_dict["time"]
-                    v=msg_dict["0xc3"]
+                    v=msg_dict["result"]
                     set_value(v,t)
                 v,t = read_value()
-                self.data.put([v,t],True, 5)
-                print("PUT", (v,t))
+                self.data.put([1,1],True, 50)
+                print("PUT", (1,1))
             except Queue.full:
                 print("Queue is full")
                 self.runThreads = False
