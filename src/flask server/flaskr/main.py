@@ -54,7 +54,7 @@ def status():
             db.commit()
             #return render_template('main/status.html', data = json.dumps(g.user_settings))
             return redirect(url_for('main.status'))
-    
+
     return render_template('main/status.html', data = json.dumps(g.user_settings))
 
 @bp.route('/widget_settings', methods = ('GET', 'POST'))
@@ -73,11 +73,9 @@ def get_settings_for_web():
     user_id = session.get('user_id')
     db = get_db()
     db_list = list(db.execute(
-            'SELECT sensor_name, pin_num FROM settings WHERE user_id=?', (user_id,)
+            'SELECT sensor_name, pin_num, config FROM settings WHERE user_id=?', (user_id,)
             ).fetchall())
     settings = []
     for row_elem in db_list:
         settings.append(dict(row_elem))
     return settings
-    
-    
