@@ -60,7 +60,7 @@ def status(target):
         if target!=5:
             db = get_db()
             db.execute(
-                    'DELETE FROM settings WHERE pin_num=?', (target,))
+                    'DELETE FROM settings WHERE user_id=?', (session.get('user_id'),))
             db.commit()
             return redirect(url_for('main.status', target=5))
         
