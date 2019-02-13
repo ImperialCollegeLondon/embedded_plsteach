@@ -15,7 +15,7 @@ from flaskr.db import get_db
 from flask_socketio import emit, Namespace
 from . import socketio
 from . import mqtt
-from flaskr.main import get_settings_for_web
+from flaskr.main import get_settings
 
 sub_config = "IC.embedded/plzteach/config"
 #sub_result = "IC.embedded/plzteach/result"
@@ -42,7 +42,7 @@ class Connections(Namespace):
         self.sender.start()
         print("Threads are STARTED")
         
-        settings = get_settings_for_web()
+        settings = get_settings()
         config_list = []
         for each_setting in settings:
             config_list.append(each_setting['config'] + ',0xE3')
