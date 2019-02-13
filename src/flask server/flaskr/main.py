@@ -45,8 +45,8 @@ def status(target):
             error = 'You can have at most 4 sensors.'
         #elif sensor_name in g.user_settings:
             #error = 'Sensor already exists.'
-        #elif 
-        
+        #elif
+
         if error is None:
             db = get_db()
             db.execute(
@@ -81,15 +81,16 @@ def view():
 def get_settings(config=False):
     user_id = session.get('user_id')
     db = get_db()
+
     if config:
         db_list = list(db.execute(
             'SELECT sensor_name, pin_num , config FROM settings WHERE user_id=?', (user_id,)
             ).fetchall())
-    else:    
+    else:
         db_list = list(db.execute(
                 'SELECT sensor_name, pin_num FROM settings WHERE user_id=?', (user_id,)
                 ).fetchall())
-        
+
     settings = []
     for row_elem in db_list:
         settings.append(dict(row_elem))
