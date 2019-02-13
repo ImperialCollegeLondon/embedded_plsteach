@@ -44,10 +44,16 @@ class Connections(Namespace):
 
         settings = get_settings(True)
         config_list = []
+        signal = []
         for each_setting in settings:
-            config_list.append(each_setting['config'] + ',0xE3')
-
-        mqtt.publish(sub_config, "[[0xC3,0xE3],[0xD3,0xE3]]")
+            config_list.append(each_setting['config'])
+        signal.append("[")
+        for x in config_list:
+            signal.append("[" + x + ", 0xE3]")
+            signal.append(",")
+        signal[-1] = "]"
+        sigstr = ''.join(map(str,signal))
+        mqtt.publish(sub_config, sigstr)
 
     def pause_plot(self):
         if self.RUN_FLAG == True:
