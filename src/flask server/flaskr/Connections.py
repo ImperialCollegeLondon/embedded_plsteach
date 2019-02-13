@@ -42,7 +42,7 @@ class Connections(Namespace):
         self.sender.start()
         print("Threads are STARTED")
         
-        settings = get_settings(true)
+        settings = get_settings(True)
         config_list = []
         for each_setting in settings:
             config_list.append(each_setting['config'] + ',0xE3')

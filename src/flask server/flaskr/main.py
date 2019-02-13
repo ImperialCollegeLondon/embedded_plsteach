@@ -53,16 +53,18 @@ def status(target):
                     'INSERT INTO settings (user_id, sensor_name, config, pin_num) VALUES (?,?,?,?)',
                     (session.get('user_id'), sensor_name, config, pin_no))
             db.commit()
-            #return render_template('main/status.html', data = json.dumps(g.user_settings))
-            return redirect(url_for('main.status'))
+            
+        return redirect(url_for('main.status', target=5))
 
-        else:
-            if target!=5:
-                db = get_db()
-                db.execute(
-                        'DELETE FROM settings WHERE pin_num=?', (target,))
-                db.commit()
-            return render_template('main/status.html', data = json.dumps(g.user_settings))
+    else:
+        if target!=5:
+            db = get_db()
+            db.execute(
+                    'DELETE FROM settings WHERE pin_num=?', (target,))
+            db.commit()
+            return redirect(url_for('main.status', target=5))
+        
+    return render_template('main/status.html', data = json.dumps(g.user_settings))
 
 @bp.route('/widget_settings', methods = ('GET', 'POST'))
 @login_required
