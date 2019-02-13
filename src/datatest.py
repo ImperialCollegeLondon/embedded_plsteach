@@ -3,15 +3,25 @@ import time
 import json
 import paho.mqtt.client as mqtt
 import ast
+import socket
 
 print("waiting for 10 s...")
 time.sleep(10)
-port_no = 8884
+port_no = 1883
+host = "ee-estott-octo.ee.ic.ac.uk"
 
 client = mqtt.Client()
-client.tls_set(ca_certs="mosquitto.org.crt", certfile="client.crt",keyfile="client.key")
+#client.tls_set(ca_certs="mosquitto.org.crt", certfile="client.crt",keyfile="client.key")
 print("before connect")
-client.connect("test.mosquitto.org", port = port_no)
+while 1:
+	try:
+		client.connect(host, port = port_no)
+	except socket.gaierror:
+		print("trying to reconnect...")
+		time.sleep(5)
+		continue
+	break
+
 print("after connect")
 client.publish("IC.embedded/plzteach/on", "ready")
 
