@@ -15,6 +15,7 @@ from flaskr.db import get_db
 from flask_socketio import emit, Namespace
 from . import socketio
 from . import mqtt
+from flaskr.main import get_settings_for_web
 
 sub_config = "IC.embedded/plzteach/config"
 #sub_result = "IC.embedded/plzteach/result"
@@ -29,18 +30,24 @@ class Connections(Namespace):
         self.evt = threading.Event()
         self.RUN_FLAG = False
         self.INIT_FLAG = True
+        
     def on_connect(self):
-        #mqtt
-        print("WS Client is CONNECTED")
+        print("Client is CONNECTED")
+        self.queue = Queue(10)
+        self.RUN_FLAG = False
+        self.INIT_FLAG = True 
         self.sender = Consumer(self.queue, self.evt, True)
         self.grabber = Producer(self.queue, self.evt, True)
         self.grabber.start()
         self.sender.start()
         print("Threads are STARTED")
-        self.queue = Queue(10)
-        self.RUN_FLAG = False
-        self.INIT_FLAG = True
-        mqtt.publish(sub_config, "[[0xC3,0xE3]]")
+        
+        settings = get_settings_for_web()
+        config_list = []
+        for each_setting in settings:
+            config_list.append(each_setting['config'] + ',0xE3')
+            
+        mqtt.publish(sub_config, "[[0xC3,0xE3],[]]")
 
     def pause_plot(self):
         if self.RUN_FLAG == True:
@@ -74,12 +81,13 @@ class Connections(Namespace):
         self.evt.clear()
         print('Event is CLEARED')
 
-    """def on_stop(self):
-        print("WS Client is DISCONNECTEDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDd")
+    def on_stop(self):
+        print("Plotting is STOPPING")
         self.stop_plot()
         self.evt.clear()
         self.grabber.runThreads = False #kill threads
-        self.sender.runThreads = False #kill threads"""
+        self.sender.runThreads = False #kill threads
+        print("Plotting is STOPPED")
 
     def on_save(self):
         db = get_db()
