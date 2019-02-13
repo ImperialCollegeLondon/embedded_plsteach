@@ -18,9 +18,9 @@ from . import mqtt
 from flaskr.main import get_settings
 
 sub_config = "IC.embedded/plzteach/config"
-#sub_result = "IC.embedded/plzteach/result"
 __value = 0
 __time = 0
+__PIN = 0 # 0 = 0xc3, 1 = 0xd3
 
 class Connections(Namespace):
 
@@ -30,19 +30,19 @@ class Connections(Namespace):
         self.evt = threading.Event()
         self.RUN_FLAG = False
         self.INIT_FLAG = True
-        
+
     def on_connect(self):
         print("Client is CONNECTED")
         self.queue = Queue(10)
         self.RUN_FLAG = False
-        self.INIT_FLAG = True 
+        self.INIT_FLAG = True
         self.sender = Consumer(self.queue, self.evt, True)
         self.grabber = Producer(self.queue, self.evt, True)
         self.grabber.start()
         self.sender.start()
         print("Threads are STARTED")
         
-        settings = get_settings()
+        settings = get_settings(true)
         config_list = []
         for each_setting in settings:
             config_list.append(each_setting['config'] + ',0xE3')
@@ -122,10 +122,10 @@ class Consumer(threading.Thread):
         while self.runThreads:
             self.event.wait()
             try:
-                x, y = self.data.get(True, 50)
-                self.list.append((x,y))
-                socketio.emit('data_in', {'x': x, 'y': y})
-                print('GET', (x, y))
+                x, y, p = self.data.get(True, 50)
+                self.list.append((x,y,p))
+                socketio.emit('data_in', {'x': x, 'y': y, 'p':p})
+                print('GET', (x, y, p))
             except Queue.empty:
                 print("Queue is empty")
                 #emit('Sensor_Dc')
@@ -145,18 +145,15 @@ class Producer(threading.Thread):
         self.mqtt = mqtt
 
     def run(self):
-        #send starting signal to pi
-        #self.mqtt.publish(sub_config, "[[0xC3,0xE3]]")
-        # global RUN_FLAG
-        # RUN_FLAG = True
-        time.sleep(0.1)
 
         while self.runThreads:
             self.event.wait()
             try:
-                v,t = read_value()
-                self.data.put([t,v],True, 50)
-                print("PUT", (t,v))
+                x,y = read_value()
+                p = read_pin()
+                print([x,y,p])
+                self.data.put([x,y,p],True, 50)
+                print("PUT", [x,y,p])
             except Queue.full:
                 print("Queue is full")
                 self.runThreads = False
@@ -165,12 +162,24 @@ class Producer(threading.Thread):
 def read_value(): #getter
     global __value
     global __time
-    return __value, __time
+    global __
+    return __time, __value
+
 def set_value(y, x): #setter
     global __value
     global __time
     __value = y
     __time = x
+
+def set_pin(x):
+    if x != None:
+        global __PIN
+        __PIN = x
+
+def read_pin():
+    global __PIN
+    return __PIN
+
 @mqtt.on_connect()
 def handle_connect():
     print("MQTT is Connected!")
@@ -179,11 +188,15 @@ def handle_connect():
 def handle_disconect():
     print('MQTT Disconnected REEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEE')
 
-#@mqtt.on_message()
+@mqtt.on_message()
 def handle_messages(client, userdata, message):
     msg = (message.payload).decode()
     msg_dict = json.loads(msg)
     t=msg_dict["time"]
-    v=msg_dict["0xc3"]
-    v = v-1.5
+    if msg_dict.get("0xc3"):
+        v = msg_dict["0xc3"]
+        set_pin(0)
+    if msg_dict.get("0xd3"):
+        v = msg_dict["0xd3"]
+        set_pin(1)
     set_value(v,t)

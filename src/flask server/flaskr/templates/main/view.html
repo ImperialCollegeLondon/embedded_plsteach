@@ -6,37 +6,42 @@
     </div>
 </div>
 
-{% raw %}
-<div class="row" style="margin-top:-100px;">
+<div class="row" style="margin-top:-90px;">
     <div class="col">
         <div gridster="gridsterOptions">
             <div gridster-item="widget" ng-repeat="widget in dashboard.widgets">
                     <div class="card card-small mb-4" ng-controller="CustomWidgetCtrl">
                         <div class="card-header border-bottom">
+                            
                             <div class="row">
                                 <div class="col-sm-12 col-md-8">
-                                    {{ widget.name }}
+                                    {{ '{{' }}widget.name{{ '}}' }}
                                 </div>
                                 <div style="text-align:right" class="col-sm-12 col-md-4">
-                                     Status: {{widget.status}}
+                                    
+                                     Status: {{ '{{' }}widget.status{{ '}}' }}
                                 </div>
                             </div>
                         </div>
+                        
                         <ul class="list-group list-group-flush">
                             <li class="list-group-item p-0 px-3 pt-3">
                                 <div class="row">
                                     <div class="col-sm-12 col-md-8 mb-3">
-                                        Pin no.: {{widget.pin}}
-                                        <br>MQTT topic: {{widget.topic}}
+                                        Pin no.: {{ '{{' }}widget.pin{{ '}}' }}
                                     </div>
-
+                                    <div style="text-align:right" class="col-sm-12 col-md-4 mb-3">
+                                        <a href="{{ url_for('main.status', target=1) }}"><button type="button" class="mb-2 btn btn-sm btn-warning mr-1">Delete</button></a>
+                                    </div>
                                 </div>
                             </li>
                         </ul>
+                        
+                    
                     </div>
                 </div>
             </div>
         </div>
     </div>
 </div>
-{% endraw %}
+
