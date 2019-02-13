@@ -20,6 +20,8 @@ sub_config = "IC.embedded/plzteach/config"
 #sub_result = "IC.embedded/plzteach/result"
 __value = 0
 __time = 0
+__pin_default = ["0xc3", "0xd3", "0xe3", "0xf3"]
+__pin_map = ["","","",""]
 
 class Connections(Namespace):
 
@@ -163,6 +165,17 @@ def set_value(y, x): #setter
     global __time
     __value = y
     __time = x
+
+def map_pins(pin_no):
+    #for now the index corresponds to the pin number
+
+
+def set_pin(x):
+    __pin_on_off[x]
+
+def read_pin():
+    np.where(__pin_on_off)[0]
+
 @mqtt.on_connect()
 def handle_connect():
     print("MQTT is Connected!")
@@ -171,11 +184,17 @@ def handle_connect():
 def handle_disconect():
     print('MQTT Disconnected REEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEE')
 
-#@mqtt.on_message()
+@mqtt.on_message()
 def handle_messages(client, userdata, message):
     msg = (message.payload).decode()
     msg_dict = json.loads(msg)
     t=msg_dict["time"]
-    v=msg_dict["0xc3"]
+
+    if msg_dict.get("0xc3"):
+        v1 = msg_dict["0xc3"]
+        set_pin(__pin.index("0xc3"))
+    if msg_dict.get("0xd3"):
+        v2 = msg_dict["0xd3"]
+        set_pin(__pin.index("0xd3"))
     v = v-1.5
     set_value(v,t)
