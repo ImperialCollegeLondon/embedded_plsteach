@@ -20,6 +20,7 @@ CREATE TABLE sess_records (
 CREATE TABLE settings (
   id INTEGER PRIMARY KEY AUTOINCREMENT,
   user_id INTEGER NOT NULL,
+  pin_num INTEGER NOT NULL,
   sensor_name TEXT NOT NULL,
   config TEXT NOT NULL,
   FOREIGN KEY (user_id) REFERENCES user (id)
