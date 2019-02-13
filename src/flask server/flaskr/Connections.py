@@ -46,6 +46,10 @@ class Connections(Namespace):
         config_list = []
         for each_setting in settings:
             config_list.append(each_setting['config'] + ',0xE3')
+<<<<<<< HEAD
+=======
+            
+>>>>>>> 8ca78be175395527cd9a877e6cc45b071e02c61b
         mqtt.publish(sub_config, "[[0xC3,0xE3],[]]")
 
     def pause_plot(self):
