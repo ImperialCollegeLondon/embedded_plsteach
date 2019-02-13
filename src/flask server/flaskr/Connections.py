@@ -54,6 +54,7 @@ class Connections(Namespace):
         signal[-1] = "]"
         sigstr = ''.join(map(str,signal))
         mqtt.publish(sub_config, sigstr)
+        #mqtt.publish(sub_config, "[[0xc3,0xe3]]")
 
     def pause_plot(self):
         if self.RUN_FLAG == True:
