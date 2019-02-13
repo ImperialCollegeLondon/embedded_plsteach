@@ -29,9 +29,9 @@ def plot():
     mqtt.subscribe(sub)
     return render_template('main/plot.html', user_settings = json.dumps(user_settings))
 
-@bp.route('/status/<method>/<int:target>', methods=('GET','POST'))
+@bp.route('/status/<int:target>', methods=('GET','POST'))
 @login_required
-def status(method, target):
+def status(target):
     g.user_settings = get_settings()
     print('user: ', g.user_settings)
     if request.method == 'POST':
@@ -55,11 +55,12 @@ def status(method, target):
             db.commit()
             #return render_template('main/status.html', data = json.dumps(g.user_settings))
             return redirect(url_for('main.status'))
+
         else:
-            if method == "del":
+            if target!=5:
                 db = get_db()
                 db.execute(
-                        'DELETE FROM settings WHERE pin_num?', (target,))
+                        'DELETE FROM settings WHERE pin_num=?', (target,))
                 db.commit()
             return render_template('main/status.html', data = json.dumps(g.user_settings))
 
@@ -78,15 +79,10 @@ def view():
 def get_settings(config=False):
     user_id = session.get('user_id')
     db = get_db()
-<<<<<<< HEAD
-    db_list = list(db.execute(
-            'SELECT sensor_name, pin_num, config FROM settings WHERE user_id=?', (user_id,)
-=======
 
     if config:
         db_list = list(db.execute(
-            'SELECT sensor_name, pin_num FROM settings WHERE user_id=?', (user_id,)
->>>>>>> 8ca78be175395527cd9a877e6cc45b071e02c61b
+            'SELECT sensor_name, pin_num , config FROM settings WHERE user_id=?', (user_id,)
             ).fetchall())
     else:
         db_list = list(db.execute(
