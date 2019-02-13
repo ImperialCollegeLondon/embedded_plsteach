@@ -115,6 +115,9 @@ class Connections(Namespace):
             db.commit()
             print("Successfully saved.")
         return self.sender.gen_JS()
+    
+    def on_process(self):
+        pass
 
 class Consumer(threading.Thread):
 
@@ -189,11 +192,11 @@ def read_pin():
 
 @mqtt.on_connect()
 def handle_connect():
-    print("MQTT is Connected!")
+    print("MQTT is Connected")
 
 @mqtt.on_disconnect()
 def handle_disconect():
-    print('MQTT Disconnected REEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEE')
+    print('MQTT Disconnected')
 
 @mqtt.on_message()
 def handle_messages(client, userdata, message):
