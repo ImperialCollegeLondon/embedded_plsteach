@@ -90,7 +90,7 @@
     						},
     						ticks: {
     						min: 0,
-    						max: 3
+    						max: 16000
     						}
     					}]
     				}
@@ -109,7 +109,7 @@
 
          socket.on('data_in', function(msg){
             console.log(msg.y);
-            data[0].push({x:msg.x, y:msg.y});
+            data[msg.p].push({x:msg.x, y:msg.y});
          });
          
          socket.on('processed_in', function(msg){
