@@ -45,8 +45,8 @@ def status(method, target):
             error = 'You can have at most 4 sensors.'
         #elif sensor_name in g.user_settings:
             #error = 'Sensor already exists.'
-        #elif 
-        
+        #elif
+
         if error is None:
             db = get_db()
             db.execute(
@@ -55,18 +55,13 @@ def status(method, target):
             db.commit()
             #return render_template('main/status.html', data = json.dumps(g.user_settings))
             return redirect(url_for('main.status'))
-<<<<<<< HEAD
-
-    return render_template('main/status.html', data = json.dumps(g.user_settings))
-=======
-    else:
-        if method == "del":
-            db = get_db()
-            db.execute(
-                    'DELETE FROM settings WHERE pin_num?', (target,))
-            db.commit()
-        return render_template('main/status.html', data = json.dumps(g.user_settings))
->>>>>>> 8ca78be175395527cd9a877e6cc45b071e02c61b
+        else:
+            if method == "del":
+                db = get_db()
+                db.execute(
+                        'DELETE FROM settings WHERE pin_num?', (target,))
+                db.commit()
+            return render_template('main/status.html', data = json.dumps(g.user_settings))
 
 @bp.route('/widget_settings', methods = ('GET', 'POST'))
 @login_required
@@ -87,17 +82,17 @@ def get_settings(config=False):
     db_list = list(db.execute(
             'SELECT sensor_name, pin_num, config FROM settings WHERE user_id=?', (user_id,)
 =======
-    
+
     if config:
         db_list = list(db.execute(
             'SELECT sensor_name, pin_num FROM settings WHERE user_id=?', (user_id,)
 >>>>>>> 8ca78be175395527cd9a877e6cc45b071e02c61b
             ).fetchall())
-    else:    
+    else:
         db_list = list(db.execute(
                 'SELECT sensor_name, pin_num FROM settings WHERE user_id=?', (user_id,)
                 ).fetchall())
-        
+
     settings = []
     for row_elem in db_list:
         settings.append(dict(row_elem))
