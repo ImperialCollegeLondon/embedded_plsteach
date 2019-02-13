@@ -41,13 +41,13 @@ class Connections(Namespace):
         self.grabber.start()
         self.sender.start()
         print("Threads are STARTED")
-        
-        settings = get_settings(true)
+
+        settings = get_settings(True)
         config_list = []
         for each_setting in settings:
             config_list.append(each_setting['config'] + ',0xE3')
-            
-        mqtt.publish(sub_config, "[[0xC3,0xE3],[]]")
+
+        mqtt.publish(sub_config, "[[0xC3,0xE3],[0xD3,0xE3]]")
 
     def pause_plot(self):
         if self.RUN_FLAG == True:
@@ -193,10 +193,10 @@ def handle_messages(client, userdata, message):
     msg = (message.payload).decode()
     msg_dict = json.loads(msg)
     t=msg_dict["time"]
-    if msg_dict.get("0xc3"):
+    if "0xc3" in msg_dict:
         v = msg_dict["0xc3"]
         set_pin(0)
-    if msg_dict.get("0xd3"):
+    if "0xd3" in msg_dict:
         v = msg_dict["0xd3"]
         set_pin(1)
     set_value(v,t)
