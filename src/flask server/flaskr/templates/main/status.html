@@ -40,12 +40,9 @@
              .config(['$routeProvider',
                       function($routeProvider) {
                       $routeProvider
-                      .when('/dashboard', {
-                            templateUrl: 'main/view',
-                            controller: 'DashboardCtrl'
-                            })
                       .otherwise({
-                                 redirectTo: '/dashboard'
+                                 templateUrl: 'main/view',
+                                 controller: 'DashboardCtrl'
                                  });
                       }
                       ])
