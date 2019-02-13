@@ -2,6 +2,7 @@
     <div gridster-item="widget">
         <div ng-controller="CustomWidgetCtrl">
             <a title="settings" ng-click="openSettings(widget)"><button type="button" class="mb-2 btn btn-sm btn-primary mr-1">Add new sensor</button></a>
+              <a href="{{ url_for('main.status', target=2) }}"><button type="button" class="mb-2 btn btn-sm btn-warning mr-1">Delete all</button></a>
         </div>
     </div>
 </div>
@@ -18,8 +19,7 @@
                                     {{ '{{' }}widget.name{{ '}}' }}
                                 </div>
                                 <div style="text-align:right" class="col-sm-12 col-md-4">
-                                    
-                                     Status: {{ '{{' }}widget.status{{ '}}' }}
+                                
                                 </div>
                             </div>
                         </div>
@@ -30,9 +30,7 @@
                                     <div class="col-sm-12 col-md-8 mb-3">
                                         Pin no.: {{ '{{' }}widget.pin{{ '}}' }}
                                     </div>
-                                    <div style="text-align:right" class="col-sm-12 col-md-4 mb-3">
-                                        <a href="{{ url_for('main.status', target=1) }}"><button type="button" class="mb-2 btn btn-sm btn-warning mr-1">Delete</button></a>
-                                    </div>
+
                                 </div>
                             </li>
                         </ul>
