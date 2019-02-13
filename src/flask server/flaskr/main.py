@@ -29,7 +29,7 @@ def plot():
     mqtt.subscribe(sub)
     return render_template('main/plot.html', user_settings = json.dumps(user_settings))
 
-@bp.route('/status', methods=('GET','POST'))
+@bp.route('/status#/dashboard', methods=('GET','POST'))
 @login_required
 def status():
     g.user_settings = get_settings_for_web()
@@ -52,8 +52,8 @@ def status():
                     'INSERT INTO settings (user_id, sensor_name, config, pin_num) VALUES (?,?,?,?)',
                     (session.get('user_id'), sensor_name, config, pin_no))
             db.commit()
-            return render_template('main/status.html', data = json.dumps(g.user_settings))
-            #return redirect...
+            #return render_template('main/status.html', data = json.dumps(g.user_settings))
+            return redirect(url_for('main.status'))
     
     return render_template('main/status.html', data = json.dumps(g.user_settings))
 

@@ -80,7 +80,6 @@ angular.module('app')
                                    sizeX: widget.sizeX,
                                    sizeY: widget.sizeY,
                                    col: widget.col,
-                                   topic: widget.topic,
                                    pin: widget.pin,
                                    row: widget.row
                                    };
