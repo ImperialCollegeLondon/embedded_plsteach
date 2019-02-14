@@ -43,6 +43,7 @@ def status(target):
 
         if len(g.user_settings) >=4:
             error = 'You can have at most 4 sensors.'
+            
         #elif sensor_name in g.user_settings:
             #error = 'Sensor already exists.'
         #elif

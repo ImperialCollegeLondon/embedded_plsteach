@@ -46,8 +46,9 @@
         var playing = false;
         var interval = null;
         var data = [[],[],[],[]];
+        var proc_data = [[],[],[],[],[]];
         var color = ["rgba(231,115,115,50)","rgba(115,173,231,50)",
-                	"rgba(115,231,115,50)","rgba(231,173,115,50)"]
+                	"rgba(115,231,115,50)","rgba(231,173,115,50)", "rgba(63,191,63,50)"]
         var pedal1 = new Image();
         pedal1.src = 'https://i.imgur.com/yDYW1I7.png';
         var pedal2 = new Image();
@@ -60,8 +61,8 @@
     			},
     			options: {
     			animation: {
-    			duration: 0,
-    		},
+        			duration: 0,
+            		},
     				responsive: true,
     				title: {
     					display: true,
@@ -83,12 +84,12 @@
     					}],
     					yAxes: [{
     					type: 'linear',
-    						display: true,
-    						scaleLabel: {
-    							display: true,
-    							labelString: 'Value'
-    						},
-    						ticks: {
+    					display: true,
+    					scaleLabel: {
+							display: true,
+							labelString: 'Value'
+						},
+						ticks: {
     						min: 0,
     						max: 18000
     						}
@@ -96,25 +97,75 @@
     				}
     			}
     		};
+    		
+    		var proc_config = {
+    			type: 'line',
+    			data: {
+    				datasets: []
+    			},
+    			options: {
+    			   elements: {
+                    line: {
+                        tension: 0
+                        }
+                    },
+    				responsive: true,
+    				title: {
+    					display: true,
+    					text: 'Processed Data Plot'
+    				},
+    				scales: {
+    					xAxes: [{
+    					type: 'linear',
+    						display: true,
+    						scaleLabel: {
+    							display: true,
+    							labelString: 'Time/s'
+    						},
+    						ticks: {
+    						min: 0,
+    						max: 60,
+    						stepSize: 5
+    						}
+    					}],
+    					yAxes: [{
+    					type: 'linear',
+    					display: true,
+    					scaleLabel: {
+							display: true,
+							labelString: 'Strength'
+						},
+						ticks: {
+    						min: 0,
+    						max: 3
+    						}
+    					}]
+    				}
+    			}
+    		};
 
          window.onload = function() {
-    			var ctx = document.getElementById('raw_chart').getContext('2d');
+            var ctx = document.getElementById('raw_chart').getContext('2d');
     			window.rawCh = new Chart(ctx, config);
-    			for (var i = 0; i < sensors_list.length; i++){
-        			addDataSet(sensors_list[i].sensor_name, sensors_list[i].pin_num);			
+        		for (var i = 0; i < sensors_list.length; i++){
+        			addDataSet(sensors_list[i].sensor_name, data, sensors_list[i].pin_num, window.rawCh);			
     			}
 			   $("#proc_btn").prop("disabled", true);
             $("#save_btn").prop("disabled", true);
     		};
 
          socket.on('data_in', function(msg){
-            console.log(msg.y);
             data[msg.p].push({x:msg.x, y:msg.y});
          });
          
          socket.on('processed_in', function(msg){
-         
-         
+             console.log(msg);
+             proc_data = msg;
+        		for (var i = 0; i < sensors_list.length; i++){
+        			addDataSet(sensors_list[i].sensor_name, proc_data, sensors_list[i].pin_num, window.procCh);			
+    			}
+    			//addDataSet()
+             window.procCh.update()
              $("#proc_btn").prop("value", "Processed");
          })
 
@@ -122,16 +173,16 @@
             window.rawCh.update();
          }
 
-         function addDataSet(sensor_name, sensor_num) {
+         function addDataSet(sensor_name, sel_data, sensor_num, chart) {
     			var newDataset = {
     				label: sensor_name,
     				backgroundColor: color[sensor_num],
     				borderColor: color[sensor_num],
-    				data: data[sensor_num],
+    				data: sel_data[sensor_num],
     				fill: false
     				};
-    			config.data.datasets.push(newDataset);
-    			window.rawCh.update();
+    			chart.config.data.datasets.push(newDataset);
+    			chart.update();
     		};
 
          function simplify() {
@@ -147,7 +198,7 @@
                  else {
                  $(e.target).text('Pause');
                      socket.emit('start_transmit');
-                     interval = setInterval(updateChart, 100);
+                     interval = setInterval(updateChart, 50);
                      updateChart();
                  }
              playing = !playing;
@@ -172,6 +223,8 @@
             socket.emit('process');
             $(this).prop("value", 'Processing');
             $(this).prop("disabled", true);
+            var ctx = document.getElementById('proc_chart').getContext('2d');
+    		   window.procCh = new Chart(ctx, proc_config);   		   
         });
 
         </script>
