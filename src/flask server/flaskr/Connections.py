@@ -13,6 +13,7 @@ from flask import (
 from flaskr.auth import login_required
 from flaskr.db import get_db
 from flask_socketio import emit, Namespace
+from flaskr.direct import direct
 from . import socketio
 from . import mqtt
 from flaskr.main import get_settings
@@ -135,14 +136,16 @@ class Connections(Namespace):
             ovlay_list.append([])
             discr_list.append([])
 
-        discret_proc(self.sender.list ,discr_list ,ovlay_list , self.sen_num)
+        discret_proc(self.sender.list ,discr_list ,ovlay_list_x, ovlay_list_y , self.sen_num)
 
-        #list for changing values is stored in ovlay_list
-        ###call for processing###
-        #change to list of dicts
+        if sen_num == 2:
+            proc_result = direct(ovlay_list_x[0], ovlay_list_y[0], ovlay_list_x[1], ovlay_list_y[1])
+            final_result = discr_list.append(proc_result)
+        else:
+            final_result = discr_list
         #concatenate as {sensor 0 - 3, direct_start, direct_end}
 
-        #socketio.emit('processed_in', ) #!!!!
+        socketio.emit('processed_in', final_result) #!!!!
 
 
 
