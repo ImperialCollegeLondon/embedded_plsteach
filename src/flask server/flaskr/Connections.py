@@ -63,6 +63,10 @@ class Connections(Namespace):
         signal[-1] = "]"
         sigstr = ''.join(map(str,signal))
         mqtt.publish(sub_config, sigstr)
+<<<<<<< HEAD
+        set_value(0,0) #initialize values for plotting
+=======
+>>>>>>> ee4f688cb3d683d2eb71f204397ab0fdfc07c108
 
     def pause_plot(self):
         if self.RUN_FLAG == True:
@@ -77,6 +81,7 @@ class Connections(Namespace):
     def stop_plot(self):
         mqtt.publish(sub_config, "stop")
         self.INIT_FLAG = True
+        set_value(0,0)
 
     def start_plot(self):
         if self.INIT_FLAG == True:
@@ -125,16 +130,20 @@ class Connections(Namespace):
             db.commit()
             print("Successfully saved.")
         return self.sender.gen_JS()
-    
+
     def on_process(self):
-        ovlay_list = []
+        ovlay_list_x = []
+        ovlay_list_y = []
         discr_list = []
         for i in range(self.sen_num):
-            ovlay_list.append([])
+            ovlay_list_x.append([])
+            ovlay_list_y.append([])
             discr_list.append([])
         
-        discret_proc(self.sender.list ,discr_list ,ovlay_list , self.sen_num)
+        discret_proc(self.sender.list ,discr_list ,ovlay_list_x, ovlay_list)y , self.sen_num)
         
+        if sen_num == 2:
+            
         #list for changing values is stored in ovlay_list
         ###call for processing###
         #change to list of dicts
@@ -186,7 +195,6 @@ class Producer(threading.Thread):
             try:
                 x,y = read_value()
                 p = read_pin()
-                print([x,y,p])
                 self.data.put([x,y,p],True, 50)
                 print("PUT", [x,y,p])
             except Queue.full:
@@ -236,7 +244,7 @@ def handle_messages(client, userdata, message):
         set_pin(1)
     set_value(v,t)
 
-def discret_proc(raw_data, discr_list, ovlay_list, sen_num):
+def discret_proc(raw_data, discr_list, ovlay_list_x, ovlay_list_y, sen_num):
     temp_locator = []
     for i in range(sen_num):
         temp_locator.append(0)
@@ -261,7 +269,8 @@ def discret_proc(raw_data, discr_list, ovlay_list, sen_num):
         
         if discr_list[p][temp_locator[p]]['y'] != y: #change in value
             temp_locator[p] = x
-            ovlay_list[p].append({'x': x, 'y':y})
+            ovlay_list_x[p].append(x)
+            ovlay_list_y[p].append(y)
             
         
         
