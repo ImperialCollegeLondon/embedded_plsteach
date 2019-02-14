@@ -64,6 +64,10 @@ class Connections(Namespace):
         signal[-1] = "]"
         sigstr = ''.join(map(str,signal))
         mqtt.publish(sub_config, sigstr)
+<<<<<<< HEAD
+        set_value(0,0) #initialize values for plotting
+=======
+>>>>>>> ee4f688cb3d683d2eb71f204397ab0fdfc07c108
 
     def pause_plot(self):
         if self.RUN_FLAG == True:
@@ -78,6 +82,7 @@ class Connections(Namespace):
     def stop_plot(self):
         mqtt.publish(sub_config, "stop")
         self.INIT_FLAG = True
+        set_value(0,0)
 
     def start_plot(self):
         if self.INIT_FLAG == True:
@@ -126,7 +131,7 @@ class Connections(Namespace):
             db.commit()
             print("Successfully saved.")
         return self.sender.gen_JS()
-    
+
     def on_process(self):
         ovlay_list_x = []
         ovlay_list_y = []
@@ -192,7 +197,6 @@ class Producer(threading.Thread):
             try:
                 x,y = read_value()
                 p = read_pin()
-                print([x,y,p])
                 self.data.put([x,y,p],True, 50)
                 print("PUT", [x,y,p])
             except Queue.full:
