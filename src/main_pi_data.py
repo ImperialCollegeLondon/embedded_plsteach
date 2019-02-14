@@ -5,8 +5,8 @@ import paho.mqtt.client as mqtt
 import ast
 import socket
 
-print("waiting for 10 s...")                                                                    #on start up wait for internet
-time.sleep(10)
+#print("waiting for 10 s...")                                                                    #on start up wait for internet
+#time.sleep(10)
 port_no = 1883                                                                                  #mqtt configurations, if encryption needed port = 8884
 host = "ee-estott-octo.ee.ic.ac.uk"
 
@@ -74,10 +74,13 @@ while 1:
 				data = bus.read_i2c_block_data(ADDR, 0 ,2)
 				result = int.from_bytes(data, 'big')
 				real_time = time.perf_counter() - begin - pause_time            #keep tracks of time when paused
+				#print("real_time = " + str(real_time))
 				payload=json.dumps({'time':real_time,hex(sensor[0]):result})
 				client.publish("IC.embedded/plzteach/result", payload)
 				print(payload)
+				time.sleep(.05)
 		pause_time = time.perf_counter() - begin - real_time
+		#print("pause_time =" + str(pause_time))
 	client.publish("IC.embedded/plzteach/on", "stopped")
 
 client.loop_stop()
