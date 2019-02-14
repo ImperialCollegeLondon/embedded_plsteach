@@ -18,7 +18,7 @@ from . import socketio
 from . import mqtt
 from flaskr.main import get_settings
 
-P_thres = [13750, 14750]
+P_thres = [14000, 15000]
 K_thres = 15000
 
 sub_config = "IC.embedded/plzteach/config"
@@ -130,19 +130,23 @@ class Connections(Namespace):
         return self.sender.gen_JS()
 
     def on_process(self):
-        ovlay_list = []
+        ovlay_list_x = []
+        ovlay_list_y = []
         discr_list = []
         for i in range(self.sen_num):
-            ovlay_list.append([])
+            ovlay_list_x.append([])
+            ovlay_list_y.append([])
             discr_list.append([])
 
         discret_proc(self.sender.list ,discr_list ,ovlay_list_x, ovlay_list_y , self.sen_num)
+        print("LIST_X: ",ovlay_list_x)
+        print("LIST_Y: ",ovlay_list_y)
 
-        if sen_num == 2:
+        """if self.sen_num == 2:
             proc_result = direct(ovlay_list_x[0], ovlay_list_y[0], ovlay_list_x[1], ovlay_list_y[1])
             final_result = discr_list.append(proc_result)
-        else:
-            final_result = discr_list
+        else:"""
+        final_result = discr_list
         #concatenate as {sensor 0 - 3, direct_start, direct_end}
 
         socketio.emit('processed_in', final_result) #!!!!
@@ -168,9 +172,8 @@ class Consumer(threading.Thread):
                 print('GET', (x, y, p))
             except Queue.empty:
                 print("Queue is empty")
-                #emit('Sensor_Dc')
                 self.runThreads = False
-            time.sleep(0.2)
+            time.sleep(0.5)
 
     def gen_JS(self):
         return json.dumps(dict(list))
@@ -193,10 +196,10 @@ class Producer(threading.Thread):
                 p = read_pin()
                 self.data.put([x,y,p],True, 50)
                 print("PUT", [x,y,p])
-            except Queue.full:
+            except Queue.empty:
                 print("Queue is full")
                 self.runThreads = False
-            time.sleep(0.2)
+            time.sleep(0.5)
 
 def read_value(): #getter
     global __value
@@ -240,12 +243,12 @@ def handle_messages(client, userdata, message):
         set_pin(1)
     set_value(v,t)
 
-def discret_proc(raw_data, discr_list, ovlay_list, sen_num):
+def discret_proc(raw_data, discr_list, ovlay_list_x, ovlay_list_y, sen_num):
     temp_locator = []
     for i in range(sen_num):
         temp_locator.append(0)
 
-    for elem in raw_data:
+    for (ind,elem) in enumerate(raw_data):
         x, y, p = elem[0], elem[1], elem[2]
 
         if p == 0: #pedal(default)
@@ -262,7 +265,7 @@ def discret_proc(raw_data, discr_list, ovlay_list, sen_num):
                 y = 0
 
         discr_list[p].append({'x': x, 'y': y})
-
-        if discr_list[p][temp_locator[p]]['y'] != y: #change in value
-            temp_locator[p] = x
-            ovlay_list[p].append({'x': x, 'y':y})
+        if temp_locator[p] != y: #change in value
+            temp_locator[p] = y
+            ovlay_list_x[p].append(x)
+            ovlay_list_y[p].append(y)

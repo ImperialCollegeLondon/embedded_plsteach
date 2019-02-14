@@ -16,8 +16,8 @@ mqtt = Mqtt()
 def create_app(test_config=None):
     # create and configure the app
     app = Flask(__name__, instance_relative_config=True) #instance folder is relative
-    app.config['MQTT_BROKER_URL'] = 'test.mosquitto.org'
-    #app.config['MQTT_BROKER_URL'] = 'ee-estott-octo.ee.ic.ac.uk'
+    #app.config['MQTT_BROKER_URL'] = 'test.mosquitto.org'
+    app.config['MQTT_BROKER_URL'] = 'ee-estott-octo.ee.ic.ac.uk'
     app.config['MQTT_BROKER_PORT'] = 1883
     app.config.from_mapping(
         SECRET_KEY='dev',
