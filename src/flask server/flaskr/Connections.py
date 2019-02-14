@@ -102,7 +102,7 @@ class Connections(Namespace):
         self.grabber.runThreads = False #kill threads
         self.sender.runThreads = False #kill threads
         
-        #socketio.emit('processed_in', [[{'x': 0, 'y': 2}, {'x': 1, 'y': 2}, {'x': 2, 'y': 2}, {'x': 3, 'y': 0}, {'x': 4, 'y': 0}, {'x': 5, 'y': 1}, {'x': 6, 'y': 1}, {'x': 7, 'y': 2}, {'x': 8, 'y': 0}], [{'x': 0, 'y': 2}, {'x': 1, 'y': 0}]])
+        #socketio.emit('processed_in', [[{'x': 0, 'y': 2}, {'x': 1, 'y': 2}, {'x': 2, 'y': 2}, {'x': 3, 'y': 0}, {'x': 4, 'y': 0}, {'x': 5, 'y': 1}, {'x': 6, 'y': 1}, {'x': 7, 'y': 2}, {'x': 8, 'y': 0}], [{'x': 0, 'y': 2}, {'x': 1, 'y': 0}], [{'x':1, 'y': 2.2}], [{'x': 2, 'y': 2.2}]])
         
         print("Plotting is STOPPED")
 
@@ -137,8 +137,10 @@ class Connections(Namespace):
         
         #list for changing values is stored in ovlay_list
         ###call for processing###
+        #change to list of dicts
+        #concatenate as {sensor 0 - 3, direct_start, direct_end}
         
-        socketio.emit('processed_in', )
+        #socketio.emit('processed_in', ) #!!!!
         
         
             

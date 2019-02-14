@@ -46,7 +46,7 @@
         var playing = false;
         var interval = null;
         var data = [[],[],[],[]];
-        var proc_data = [[],[],[],[],[]];
+        var proc_data = [[],[],[],[],[],[],[],[]];
         var color = ["rgba(231,115,115,50)","rgba(115,173,231,50)",
                 	"rgba(115,231,115,50)","rgba(231,173,115,50)", "rgba(63,191,63,50)"]
         var pedal1 = new Image();
@@ -137,7 +137,8 @@
 						},
 						ticks: {
     						min: 0,
-    						max: 3
+    						max: 3,
+    						stepSize: 1
     						}
     					}]
     				}
@@ -150,7 +151,7 @@
         		for (var i = 0; i < sensors_list.length; i++){
         			addDataSet(sensors_list[i].sensor_name, data, sensors_list[i].pin_num, window.rawCh);			
     			}
-			   $("#proc_btn").prop("disabled", true);
+			  $("#proc_btn").prop("disabled", true); //test
             $("#save_btn").prop("disabled", true);
     		};
 
@@ -164,7 +165,9 @@
         		for (var i = 0; i < sensors_list.length; i++){
         			addDataSet(sensors_list[i].sensor_name, proc_data, sensors_list[i].pin_num, window.procCh);			
     			}
-    			//addDataSet()
+    			addDataSet("Direct", proc_data, sensors_list.length, window.procCh);
+    			addDataSet("End-Direct", proc_data, sensors_list.length+1, window.procCh);
+			   simplify();
              window.procCh.update()
              $("#proc_btn").prop("value", "Processed");
          })
@@ -186,7 +189,10 @@
     		};
 
          function simplify() {
-        		window.rawCh.config.data.datasets[0]._meta[0].data[0]._model.pointStyle = pedal1;
+        		window.procCh.config.data.datasets[sensors_list.length].pointStyle = pedal1;
+        		window.procCh.config.data.datasets[sensors_list.length].showLine = false;
+        		window.procCh.config.data.datasets[sensors_list.length+1].pointStyle = pedal2;
+        		window.procCh.config.data.datasets[sensors_list.length+1].showLine = false;
         	}
 
          $("#play_btn").on('click', function(e) {
