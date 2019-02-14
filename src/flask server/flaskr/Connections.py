@@ -17,6 +17,9 @@ from . import socketio
 from . import mqtt
 from flaskr.main import get_settings
 
+P_thres = [13750, 14750]
+K_thres = 15000
+
 sub_config = "IC.embedded/plzteach/config"
 __value = 0
 __time = 0
@@ -30,10 +33,11 @@ class Connections(Namespace):
         self.evt = threading.Event()
         self.RUN_FLAG = False
         self.INIT_FLAG = True
+        self.sen_num = 0
 
     def on_connect(self):
         print("Client is CONNECTED")
-        self.queue = Queue(10)
+        self.queue = Queue(20)
         self.RUN_FLAG = False
         self.INIT_FLAG = True
         self.sender = Consumer(self.queue, self.evt, True)
@@ -43,24 +47,31 @@ class Connections(Namespace):
         print("Threads are STARTED")
 
         settings = get_settings(True)
+        self.sen_num = len(settings)
+        
         config_list = []
         signal = []
+        
         for each_setting in settings:
             config_list.append(each_setting['config'])
         signal.append("[")
+        
         for x in config_list:
             signal.append("[" + x + ", 0xE3]")
             signal.append(",")
+            
         signal[-1] = "]"
         sigstr = ''.join(map(str,signal))
         mqtt.publish(sub_config, sigstr)
+<<<<<<< HEAD
         set_value(0,0) #initialize values for plotting
+=======
+>>>>>>> ee4f688cb3d683d2eb71f204397ab0fdfc07c108
 
     def pause_plot(self):
         if self.RUN_FLAG == True:
             mqtt.publish(sub_config, "pause")
             self.RUN_FLAG = False
-
 
     def unpause_plot(self):
         if self.RUN_FLAG == False:
@@ -95,6 +106,9 @@ class Connections(Namespace):
         self.evt.clear()
         self.grabber.runThreads = False #kill threads
         self.sender.runThreads = False #kill threads
+        
+        #socketio.emit('processed_in', [[{'x': 0, 'y': 2}, {'x': 1, 'y': 2}, {'x': 2, 'y': 2}, {'x': 3, 'y': 0}, {'x': 4, 'y': 0}, {'x': 5, 'y': 1}, {'x': 6, 'y': 1}, {'x': 7, 'y': 2}, {'x': 8, 'y': 0}], [{'x': 0, 'y': 2}, {'x': 1, 'y': 0}], [{'x':1, 'y': 2.2}], [{'x': 2, 'y': 2.2}]])
+        
         print("Plotting is STOPPED")
 
     def on_save(self):
@@ -118,10 +132,25 @@ class Connections(Namespace):
         return self.sender.gen_JS()
 
     def on_process(self):
-        pass
-
+        ovlay_list = []
+        discr_list = []
+        for i in range(self.sen_num):
+            ovlay_list.append([])
+            discr_list.append([])
+        
+        discret_proc(self.sender.list ,discr_list ,ovlay_list , self.sen_num)
+        
+        #list for changing values is stored in ovlay_list
+        ###call for processing###
+        #change to list of dicts
+        #concatenate as {sensor 0 - 3, direct_start, direct_end}
+        
+        #socketio.emit('processed_in', ) #!!!!
+        
+        
+            
 class Consumer(threading.Thread):
-
+    
     def __init__(self, queue, event, runThreads):
         threading.Thread.__init__(self)
         self.data = queue
@@ -210,3 +239,46 @@ def handle_messages(client, userdata, message):
         v = msg_dict["0xd3"]
         set_pin(1)
     set_value(v,t)
+
+def discret_proc(raw_data, discr_list, ovlay_list, sen_num):
+    temp_locator = []
+    for i in range(sen_num):
+        temp_locator.append(0)
+    
+    for elem in raw_data:
+        x, y, p = elem[0], elem[1], elem[2]
+
+        if p == 0: #pedal(default)
+            if y < P_thres[0]:
+                y = 0
+            elif y < P_thres[1]:
+                y = 1
+            else:
+                y = 2
+        elif p == 1: #key/drum
+            if y > K_thres:
+                y = 2
+            else:
+                y = 0
+                
+        discr_list[p].append({'x': x, 'y': y})
+        
+        if discr_list[p][temp_locator[p]]['y'] != y: #change in value
+            temp_locator[p] = x
+            ovlay_list[p].append({'x': x, 'y':y})
+            
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
