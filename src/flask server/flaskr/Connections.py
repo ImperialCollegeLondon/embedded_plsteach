@@ -13,6 +13,7 @@ from flask import (
 from flaskr.auth import login_required
 from flaskr.db import get_db
 from flask_socketio import emit, Namespace
+from flaskr.direct import direct
 from . import socketio
 from . import mqtt
 from flaskr.main import get_settings
@@ -48,25 +49,22 @@ class Connections(Namespace):
 
         settings = get_settings(True)
         self.sen_num = len(settings)
-        
+
         config_list = []
         signal = []
-        
+
         for each_setting in settings:
             config_list.append(each_setting['config'])
         signal.append("[")
-        
+
         for x in config_list:
             signal.append("[" + x + ", 0xE3]")
             signal.append(",")
-            
+
         signal[-1] = "]"
         sigstr = ''.join(map(str,signal))
         mqtt.publish(sub_config, sigstr)
-<<<<<<< HEAD
         set_value(0,0) #initialize values for plotting
-=======
->>>>>>> ee4f688cb3d683d2eb71f204397ab0fdfc07c108
 
     def pause_plot(self):
         if self.RUN_FLAG == True:
@@ -106,9 +104,9 @@ class Connections(Namespace):
         self.evt.clear()
         self.grabber.runThreads = False #kill threads
         self.sender.runThreads = False #kill threads
-        
+
         #socketio.emit('processed_in', [[{'x': 0, 'y': 2}, {'x': 1, 'y': 2}, {'x': 2, 'y': 2}, {'x': 3, 'y': 0}, {'x': 4, 'y': 0}, {'x': 5, 'y': 1}, {'x': 6, 'y': 1}, {'x': 7, 'y': 2}, {'x': 8, 'y': 0}], [{'x': 0, 'y': 2}, {'x': 1, 'y': 0}], [{'x':1, 'y': 2.2}], [{'x': 2, 'y': 2.2}]])
-        
+
         print("Plotting is STOPPED")
 
     def on_save(self):
@@ -132,29 +130,27 @@ class Connections(Namespace):
         return self.sender.gen_JS()
 
     def on_process(self):
-        ovlay_list_x = []
-        ovlay_list_y = []
+        ovlay_list = []
         discr_list = []
         for i in range(self.sen_num):
-            ovlay_list_x.append([])
-            ovlay_list_y.append([])
+            ovlay_list.append([])
             discr_list.append([])
-        
-        discret_proc(self.sender.list ,discr_list ,ovlay_list_x, ovlay_list)y , self.sen_num)
-        
+
+        discret_proc(self.sender.list ,discr_list ,ovlay_list_x, ovlay_list_y , self.sen_num)
+
         if sen_num == 2:
-            
-        #list for changing values is stored in ovlay_list
-        ###call for processing###
-        #change to list of dicts
+            proc_result = direct(ovlay_list_x[0], ovlay_list_y[0], ovlay_list_x[1], ovlay_list_y[1])
+            final_result = discr_list.append(proc_result)
+        else:
+            final_result = discr_list
         #concatenate as {sensor 0 - 3, direct_start, direct_end}
-        
-        #socketio.emit('processed_in', ) #!!!!
-        
-        
-            
+
+        socketio.emit('processed_in', final_result) #!!!!
+
+
+
 class Consumer(threading.Thread):
-    
+
     def __init__(self, queue, event, runThreads):
         threading.Thread.__init__(self)
         self.data = queue
@@ -244,11 +240,11 @@ def handle_messages(client, userdata, message):
         set_pin(1)
     set_value(v,t)
 
-def discret_proc(raw_data, discr_list, ovlay_list_x, ovlay_list_y, sen_num):
+def discret_proc(raw_data, discr_list, ovlay_list, sen_num):
     temp_locator = []
     for i in range(sen_num):
         temp_locator.append(0)
-    
+
     for elem in raw_data:
         x, y, p = elem[0], elem[1], elem[2]
 
@@ -264,26 +260,9 @@ def discret_proc(raw_data, discr_list, ovlay_list_x, ovlay_list_y, sen_num):
                 y = 2
             else:
                 y = 0
-                
+
         discr_list[p].append({'x': x, 'y': y})
-        
+
         if discr_list[p][temp_locator[p]]['y'] != y: #change in value
             temp_locator[p] = x
-            ovlay_list_x[p].append(x)
-            ovlay_list_y[p].append(y)
-            
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
+            ovlay_list[p].append({'x': x, 'y':y})
