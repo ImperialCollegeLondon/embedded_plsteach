@@ -18,6 +18,7 @@ from . import socketio
 from . import mqtt
 from flaskr.main import get_settings
 
+#thresholding values for identifying sensor activation
 P_thres = [14000, 15000]
 K_thres = 15000
 
@@ -37,6 +38,7 @@ class Connections(Namespace):
         self.sen_num = 0
 
     def on_connect(self):
+        # called when request to main/plot.html is made
         print("Client is CONNECTED")
         self.queue = Queue(20)
         self.RUN_FLAG = False
@@ -47,40 +49,41 @@ class Connections(Namespace):
         self.sender.start()
         print("Threads are STARTED")
 
+        #get settings from db
         settings = get_settings(True)
         self.sen_num = len(settings)
 
         config_list = []
         signal = []
-
+        #from the settings obtained from db, produce initilization code for pi
         for each_setting in settings:
             config_list.append(each_setting['config'])
         signal.append("[")
-
         for x in config_list:
             signal.append("[" + x + ", 0xE3]")
             signal.append(",")
-
         signal[-1] = "]"
         sigstr = ''.join(map(str,signal))
         mqtt.publish(sub_config, sigstr)
-        set_value(0,0) #initialize values for plotting
+        #initialize values before plotting
+        set_value(0,0)
 
+        # pause function
     def pause_plot(self):
         if self.RUN_FLAG == True:
             mqtt.publish(sub_config, "pause")
             self.RUN_FLAG = False
-
+        # unpause function
     def unpause_plot(self):
         if self.RUN_FLAG == False:
             mqtt.publish(sub_config, "unpause")
             self.RUN_FLAG = True
-
+        #stop function
     def stop_plot(self):
         mqtt.publish(sub_config, "stop")
         self.INIT_FLAG = True
         set_value(0,0)
-
+        #start function
     def start_plot(self):
         if self.INIT_FLAG == True:
             mqtt.publish(sub_config, "unpause")
@@ -166,6 +169,8 @@ class Consumer(threading.Thread):
         while self.runThreads:
             self.event.wait()
             try:
+                # pop the data from the queue (FIFO) that is pushed by the 
+                # Producer object
                 x, y, p = self.data.get(True, 50)
                 self.list.append((x,y,p))
                 socketio.emit('data_in', {'x': x, 'y': y, 'p':p})
@@ -192,55 +197,80 @@ class Producer(threading.Thread):
         while self.runThreads:
             self.event.wait()
             try:
+                # get global variables for voltage and time saved at this moment
                 x,y = read_value()
+                # get global variable for pin number saved at this moment
                 p = read_pin()
+                # push the data into the queue (FIFO) to be popped by the
+                # Consumer object
                 self.data.put([x,y,p],True, 50)
                 print("PUT", [x,y,p])
             except Queue.empty:
                 print("Queue is full")
                 self.runThreads = False
             time.sleep(0.5)
+# handles global values that corresponds to the voltage, time and device pin of
+# the message received on the subscribed mqtt topic. We are using global values
+# because the mqtt callbacks on flask does not play well with containers and
+# local variables for some reason. We suspect that this is due to the decorator
+# function. Global variable is an easy fix to this solution but should not be
+# a permanent solution.
 
-def read_value(): #getter
+# getter for time and voltage
+def read_value():
     global __value
     global __time
     global __
     return __time, __value
-
-def set_value(y, x): #setter
+# setter for time and voltage
+def set_value(y, x):
     global __value
     global __time
     __value = y
     __time = x
-
-def set_pin(x):
-    if x != None:
-        global __PIN
-        __PIN = x
-
+# getter for pin
 def read_pin():
     global __PIN
     return __PIN
 
+#setter for pin
+def set_pin(x):
+    if x != None:
+        global __PIN
+        __PIN = x
+# callback on connect from mqtt broker
 @mqtt.on_connect()
 def handle_connect():
     print("MQTT is Connected")
-
+# callback on disconnect from mqtt broker
 @mqtt.on_disconnect()
 def handle_disconect():
     print('MQTT Disconnected')
-
+# callback on message received on subscribed mqtt topic
 @mqtt.on_message()
 def handle_messages(client, userdata, message):
+    # decoding required when reading in msg for some reason
     msg = (message.payload).decode()
+    # decode the actual json string and convert it to a python dictionary
     msg_dict = json.loads(msg)
+    # get the timestamp of the data sampled by pi
     t=msg_dict["time"]
+    # there are two possible sensors at the moment, the 2 hex codes correspond
+    # to the sensor configuration code that's sent to the pi, we don't actually
+    # need to use 0xc3 or 0xd3 it can be any string that identifies the both,
+    # we are using these strings arbitrarily
     if "0xc3" in msg_dict:
+    # key to voltage in python dictionary is the corresponding hex code to the
+    # sensor
         v = msg_dict["0xc3"]
+    # setting the pin so that we can identify which device is the message sent
+    # from
         set_pin(0)
+    # same as above
     if "0xd3" in msg_dict:
         v = msg_dict["0xd3"]
         set_pin(1)
+    # update global variables
     set_value(v,t)
 
 def discret_proc(raw_data, discr_list, ovlay_list_x, ovlay_list_y, sen_num):

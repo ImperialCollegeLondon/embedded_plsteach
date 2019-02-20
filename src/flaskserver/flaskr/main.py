@@ -15,6 +15,7 @@ import json
 
 bp = Blueprint('main', __name__, url_prefix='/main')
 config_table = ['0xC3', '0xD3', '0xE3', '0xF3']
+# predefined topic for the result to be broadcasted from the pi
 sub = 'IC.embedded/plzteach/result'
 
 @bp.route('/home')
@@ -43,7 +44,7 @@ def status(target):
 
         if len(g.user_settings) >=4:
             error = 'You can have at most 4 sensors.'
-            
+
         #elif sensor_name in g.user_settings:
             #error = 'Sensor already exists.'
         #elif
@@ -54,7 +55,7 @@ def status(target):
                     'INSERT INTO settings (user_id, sensor_name, config, pin_num) VALUES (?,?,?,?)',
                     (session.get('user_id'), sensor_name, config, pin_no))
             db.commit()
-            
+
         return redirect(url_for('main.status', target=5))
 
     else:
@@ -64,7 +65,7 @@ def status(target):
                     'DELETE FROM settings WHERE user_id=?', (session.get('user_id'),))
             db.commit()
             return redirect(url_for('main.status', target=5))
-        
+
     return render_template('main/status.html', data = json.dumps(g.user_settings))
 
 @bp.route('/widget_settings', methods = ('GET', 'POST'))
