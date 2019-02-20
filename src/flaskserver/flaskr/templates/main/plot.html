@@ -1,46 +1,43 @@
 {% extends 'base.html' %}
-
 {% block content %}
-
 <html>
     <head>
         <link rel="stylesheet" type="text/css" href="{{ url_for('static',filename='styles/test.css') }}">
-                <script src="http://code.jquery.com/jquery-1.10.1.min.js"></script>
-                <script type="text/javascript" src="//cdn.bootcss.com/socket.io/1.5.1/socket.io.min.js"></script>
-                </head>
+        <script src="http://code.jquery.com/jquery-1.10.1.min.js"></script>
+        <script type="text/javascript" src="//cdn.bootcss.com/socket.io/1.5.1/socket.io.min.js"></script>
+    </head>
     <body>
-<div class="col-12">
-    <div class="page-header row no-gutters py-4">
-        <div class="col-12 col-sm-4 text-center text-sm-left mb-0">
-            <h3 class="page-title">Real-time {% block title %}Graph{% endblock %}</h3>
-        </div>
-    </div>
     <div class="col-12">
-<div class="row">
-    <div style="width: 1050px">
-        <div class="card card-small">
-            <div class="card-header" >
-                <p></p>
+        <div class="page-header row no-gutters py-4">
+            <div class="col-12 col-sm-4 text-center text-sm-left mb-0">
+                <h3 class="page-title">Real-time {% block title %}Graph{% endblock %}</h3>
             </div>
-            <div class="card-body pt-0">
-                <div id="chart_area" class="test">
-                    <canvas id="raw_chart"></canvas>
-                    <button id="play_btn" class="btn btn-sm btn-outline-accent">Play</button>
-                    <button id="stop_btn" class="btn btn-sm btn-outline-accent">Stop</button>
-                    <button id="proc_btn" class="btn btn-sm btn-outline-accent">Process</button>
-                    <button id="save_btn" class="btn btn-sm btn-outline-accent">Save</button>
-                </div>
-                <div class="test">
-                    <canvas id="proc_chart"></canvas>
-                </div>
+        </div>
+        <div class="col-12">
+            <div class="row">
+                <div style="width: 1050px">
+                    <div class="card card-small">
+                        <div class="card-header" >
+                            <p></p>
+                        </div>
+                        <div class="card-body pt-0">
+                            <div id="chart_area" class="test">
+                                <canvas id="raw_chart"></canvas>
+                                <button id="play_btn" class="btn btn-sm btn-outline-accent">Play</button>
+                                <button id="stop_btn" class="btn btn-sm btn-outline-accent">Stop</button>
+                                <button id="proc_btn" class="btn btn-sm btn-outline-accent">Process</button>
+                                <button id="save_btn" class="btn btn-sm btn-outline-accent">Save</button>
+                            </div>
+                            <div class="test">
+                                <canvas id="proc_chart"></canvas>
+                            </div>
+                        </div>
+                    </div>
                 </div>
             </div>
         </div>
     </div>
-</div>
-</div>
-
-        <script>
+    <script>
         var socket = io.connect('http://localhost:5000');
         var sensors_list = {{ user_settings|safe }};
         var playing = false;
@@ -232,9 +229,7 @@
             var ctx = document.getElementById('proc_chart').getContext('2d');
     		   window.procCh = new Chart(ctx, proc_config);   		   
         });
-
         </script>
-
     </body>
 </html>
 

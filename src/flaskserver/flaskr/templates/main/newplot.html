@@ -1,0 +1,101 @@
+<!doctype html>
+<html>
+    <head>
+        <title>My Data</title>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.7.3/Chart.bundle.js"></script>
+    </head>
+    <body>
+        <div style="width:70%;">
+            <canvas id="canvas"></canvas>
+        </div>
+        <br>
+        <br>
+        <button id="addDataset">Add Dataset</button>
+        <button id="pushData">Push Data</button>
+        <button id="simplify">Simplify</button>
+        <script>
+            var data = [[{x:0, y:1}],[],[],[]];
+            var color = ["rgba(231,115,115,50)","rgba(115,173,231,50)",
+                        "rgba(115,231,115,50)","rgba(231,173,115,50)"]
+            var sun = new Image();
+            sun.src = 'https://i.imgur.com/yDYW1I7.png';
+            var cloud = new Image();
+            cloud.src = 'https://i.imgur.com/DIbr9q1.png';
+            
+            var config = {
+                type: 'line',
+                data: {
+                    datasets: []
+                },
+                options: {
+                    responsive: true,
+                    title: {
+                        display: true,
+                        text: 'Sensor Data Plot'
+                    },
+                    tooltips: {
+                        mode: 'index',
+                        intersect: false,
+                    },
+                    hover: {
+                        mode: 'nearest',
+                        intersect: true
+                    },
+                    scales: {
+                        xAxes: [{
+                            display: true,
+                            scaleLabel: {
+                                display: true,
+                                labelString: 'Time'
+                            }
+                        }],
+                        yAxes: [{
+                            display: true,
+                            scaleLabel: {
+                                display: true,
+                                labelString: 'Value'
+                            }
+                        }]
+                    }
+                }
+            };
+
+            window.onload = function() {
+                var ctx = document.getElementById('canvas').getContext('2d');
+                window.myLine = new Chart(ctx, config);
+                addDataSet();
+            };
+        
+            document.getElementById('addDataset').addEventListener('click', addDataSet);
+            document.getElementById('simplify').addEventListener('click', simplify);
+
+            
+            function addDataSet() {
+                var sen_num = config.data.datasets.length;
+                var newDataset = {
+                    label: 'Sensor ' + (sen_num+1),
+                    backgroundColor: color[sen_num],
+                    borderColor: color[sen_num],
+                    data: data[sen_num],
+                    fill: false
+                    }
+                config.data.datasets.push(newDataset);
+                window.myLine.update();
+            };
+        
+            function simplify() {
+                window.myLine.config.data.datasets[0]._meta[0].data[0]._model.pointStyle = sun;
+            }
+        
+            document.getElementById('pushData').addEventListener('click', function() {
+            //push and update data
+                    data[0].push({x:1, y:1});
+                    data[1].push({x:1, y:2});
+                    data[2].push({x:1, y:3});
+                    window.myLine.update();
+                }
+            );
+
+        </script>
+    </body>
+</html>

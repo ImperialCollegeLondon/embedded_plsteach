@@ -1,9 +1,7 @@
 {% extends 'base.html' %}
-
 {% block header %}
 {% block title %}Home{% endblock %}
 {% endblock %}
-
 {% block content %}
 <div class="main-content-container container-fluid px-4">
     <div class="page-header row no-gutters py-4">
@@ -14,22 +12,24 @@
     <div class="row">
         <div class="col-lg-8 col-md-16 col-sm-12 mb-4">
             <div class="card card-small mb-4 ">
-                <div class="card-header">
-                </div>
+                <div class="card-header"></div>
                 <div class="card-body p-0 pb-3 text-center">
                     <h2>Welcome, guest </h2>
-                    <p><br>Click <a href="{{ url_for('auth.login') }}">
+                    <p>
+                        <br>Click
+                        <a href="{{ url_for('auth.login') }}">
                         Login
-                    </a> to access your account
-                    <br>Click <a href="{{ url_for('auth.register') }}">
-                        Register
-                    </a> to create an account</p>
+                        </a> to access your account
+                        <br>Click
+                        <a href="{{ url_for('auth.register') }}">
+                            Register
+                        </a>
+                        to create an account
+                    </p>
                     <p></p>
-                    
                 </div>
             </div>
         </div>
     </div>
 </div>
-
 {% endblock %}

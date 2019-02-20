@@ -29,14 +29,10 @@
                     
                     });
     </script>
-
-
 <div ng-app="app2" ng-controller="HttpGetController">
     <form method="post" name="_form" ng-submit="submit(_form)">
         <div class="card-header border-bottom">
-
-                    <h6 class="m-0">Sensor Settings</h6>
-
+            <h6 class="m-0">Sensor Settings</h6>
         </div>
         <ul class="list-group list-group-flush">
             <li class="list-group-item px-3">
@@ -44,19 +40,16 @@
                     <strong class="text-muted d-block mb-2">Name</strong>
                     <div class="input-group mb-3">
                         <input type="text" class="form-control" name="sensor_name">
-                            </div>
+                    </div>
                     <strong class="text-muted d-block mb-2">Pin no.</strong>
                     <div class="input-group mb-3">
                         <input type="text" class="form-control" name="pin">
-                            </div>
-                    
+                    </div>
                     <div class="row">
-
                         <div style="text-align:right" class="col-sm-12 col-md-12">
                             <input type="submit" value="Save" class="mb-2 btn btn-sm btn-outline-primary mr-1">
-                                
-                                {{ PostDataResponse }}
-                                </div>
+                            {{ PostDataResponse }}
+                        </div>
                     </div>
                 </form>
             </li>
