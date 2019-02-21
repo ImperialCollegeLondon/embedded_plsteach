@@ -13,7 +13,6 @@ from flask import (
 from flaskr.auth import login_required
 from flaskr.db import get_db
 from flask_socketio import emit, Namespace
-from flaskr.direct import direct
 from . import socketio
 from . import mqtt
 from flaskr.main import get_settings
@@ -27,7 +26,8 @@ __value = 0
 __time = 0
 __PIN = 0 # 0 = 0xc3, 1 = 0xd3
 
-class Connections(Namespace):
+class Connections(Namespace): # definition of class-based namespace
+                              #for websocket
 
     def __init__(self, queue_length, namespace):
         super(Namespace, self).__init__(namespace)

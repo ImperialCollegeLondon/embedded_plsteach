@@ -13,30 +13,31 @@ from flaskr.db import get_db
 from . import mqtt
 import json
 
-bp = Blueprint('main', __name__, url_prefix='/main')
+bp = Blueprint('main', __name__, url_prefix='/main') #all requests have prefix /main
 config_table = ['0xC3', '0xD3', '0xE3', '0xF3']
 # predefined topic for the result to be broadcasted from the pi
 sub = 'IC.embedded/plzteach/result'
 
-@bp.route('/home')
+@bp.route('/home') #handle for /home request
 @login_required
 def home():
     return render_template('main/home.html')
 
-@bp.route('/plot')
+@bp.route('/plot') #handle for /plot request
 @login_required
 def plot():
-    user_settings = get_settings()
+    user_settings = get_settings() #get sensor configuration
     mqtt.subscribe(sub)
-    return render_template('main/plot.html', user_settings = json.dumps(user_settings))
+    return render_template('main/plot.html', user_settings = json.dumps(user_settings)) #return config to browser to generate
+                                                                                        #webpage layout
 
-@bp.route('/status/<int:target>', methods=('GET','POST'))
+@bp.route('/status/<int:target>', methods=('GET','POST')) #handle for /status request
 @login_required
 def status(target):
     g.user_settings = get_settings()
     print('user: ', g.user_settings)
     if request.method == 'POST':
-        sensor_name = request.form['sensor_name']
+        sensor_name = request.form['sensor_name'] #getting user inputs from webpage
         pin_no = int(request.form['pin'])
         print('Posted', sensor_name, pin_no)
         error = None
@@ -45,14 +46,10 @@ def status(target):
         if len(g.user_settings) >=4:
             error = 'You can have at most 4 sensors.'
 
-        #elif sensor_name in g.user_settings:
-            #error = 'Sensor already exists.'
-        #elif
-
         if error is None:
             db = get_db()
             db.execute(
-                    'INSERT INTO settings (user_id, sensor_name, config, pin_num) VALUES (?,?,?,?)',
+                    'INSERT INTO settings (user_id, sensor_name, config, pin_num) VALUES (?,?,?,?)', #save user settings in db
                     (session.get('user_id'), sensor_name, config, pin_no))
             db.commit()
 
@@ -62,13 +59,13 @@ def status(target):
         if target!=5:
             db = get_db()
             db.execute(
-                    'DELETE FROM settings WHERE user_id=?', (session.get('user_id'),))
+                    'DELETE FROM settings WHERE user_id=?', (session.get('user_id'),)) #delete all user settings in db
             db.commit()
             return redirect(url_for('main.status', target=5))
 
     return render_template('main/status.html', data = json.dumps(g.user_settings))
 
-@bp.route('/widget_settings', methods = ('GET', 'POST'))
+@bp.route('/widget_settings', methods = ('GET', 'POST')) #handle widget from /status
 @login_required
 def widget_settings():
     if request.method == 'POST':
@@ -80,7 +77,7 @@ def widget_settings():
 def view():
     return render_template('main/view.html')
 
-def get_settings(config=False):
+def get_settings(config=False): #handle settings pop-up in /status
     user_id = session.get('user_id')
     db = get_db()
 
