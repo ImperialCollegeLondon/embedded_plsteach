@@ -291,7 +291,7 @@ void outSerialThread(){
                     break;
                     
                 case nce:
-                    pc.printf("nonce\t:\t%a\n\r", msg->content); 
+                    pc.printf("nonce\t:\t%X\n\r", (uint32_t)msg->content); 
                     break;
                 
                 case hashRate:
